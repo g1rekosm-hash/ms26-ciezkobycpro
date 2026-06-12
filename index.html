@@ -309,7 +309,7 @@ function processData(rows){
     if(!col0||!col1)continue;
     if(col1==='SUMA'||col1==='MECZ')continue;
 
-    const parts=col1.split(' - ');
+    const parts=col1.split(/\s*-\s*/);
     if(parts.length<2)continue;
 
     const realScore=parseScore(r[12]?r[12].replace(/"/g,''):'');
