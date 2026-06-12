@@ -24,7 +24,9 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .header-badge span{color:var(--green);font-weight:600}
 
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:25% 50% 25%;grid-template-rows:auto;gap:0;min-height:calc(100vh - 57px)}
+.layout{display:grid;grid-template-columns:25% 50% 25%;grid-template-rows:auto auto;gap:0;min-height:calc(100vh - 57px)}
+.left-panel{grid-row:1/3}
+.right-panel{grid-row:1/3}
 
 /* CENTER */
 .center{padding:20px 32px;border-right:1px solid var(--border);border-left:1px solid var(--border)}
@@ -78,7 +80,7 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .date-divider{padding:6px 16px;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:var(--dark2);border-bottom:1px solid var(--border)}
 
 /* LEFT — TYPY */
-.left-panel{padding:20px 16px 20px 20px;overflow-y:auto}
+.left-panel{padding:20px 16px 20px 20px;overflow-y:auto;max-height:calc(100vh - 57px)}
 .typy-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
 .typy-match-name{font-size:0.8rem;font-weight:600;margin-bottom:10px;color:var(--text)}
 .typy-match-score{font-family:'Oswald',sans-serif;font-size:0.9rem;color:var(--green);float:right}
@@ -113,6 +115,21 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 
 /* LOADING */
 .loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);font-size:0.9rem}
+
+/* GRUPY */
+.groups-section{margin-top:16px}
+.groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.group-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden}
+.group-header{background:var(--dark2);padding:4px 8px;font-family:'Oswald',sans-serif;font-size:0.75rem;color:var(--gold);letter-spacing:1px;border-bottom:1px solid var(--border)}
+.group-table{width:100%;border-collapse:collapse;font-size:0.65rem}
+.group-table th{padding:3px 4px;color:var(--muted);font-weight:500;text-align:center}
+.group-table th:first-child{text-align:left;padding-left:6px}
+.group-table td{padding:3px 4px;border-top:1px solid var(--border);text-align:center;color:var(--text)}
+.group-table td:first-child{text-align:left;padding-left:6px;display:flex;align-items:center;gap:4px;white-space:nowrap;overflow:hidden}
+.group-table tr:hover td{background:var(--card2)}
+.g-pts{font-weight:700;color:var(--green)}
+.g-flag{font-size:0.75rem;border-radius:2px;flex-shrink:0}
+.g-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px}
 
 /* MOBILE */
 @media(max-width:900px){
@@ -185,6 +202,12 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
       <div class="match-scroll" id="match-scroll"></div>
     </div>
 
+  </div>
+
+  <!-- GRUPY -->
+  <div class="groups-section" style="padding:0 20px 20px 20px;grid-column:2">
+    <div class="section-label" style="margin:12px 0 8px">Tabele grup</div>
+    <div class="groups-grid" id="groups-grid"><div class="loading">Ładowanie...</div></div>
   </div>
 
   <!-- RIGHT: TABELA -->
@@ -465,7 +488,7 @@ function renderScroller(matches){
 }
 
 function renderTypy(matches){
-  const played=matches.filter(m=>m.real).slice(-5).reverse();
+  const played=matches.filter(m=>m.real).slice().reverse();
   const cont=document.getElementById('typy-container');
   cont.innerHTML='';
   played.forEach(m=>{
@@ -489,6 +512,48 @@ function renderTypy(matches){
   });
 }
 
+function renderGroups(matches){
+  const groups={};
+  matches.forEach(m=>{
+    const g=m.group;
+    if(!g||g.length>1)return;
+    if(!groups[g])groups[g]={};
+    [m.home,m.away].forEach(t=>{
+      if(!groups[g][t])groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+    });
+    if(m.real){
+      const[hg,ag]=m.real;
+      groups[g][m.home].p++;groups[g][m.away].p++;
+      groups[g][m.home].gf+=hg;groups[g][m.home].ga+=ag;
+      groups[g][m.away].gf+=ag;groups[g][m.away].ga+=hg;
+      if(hg>ag){groups[g][m.home].w++;groups[g][m.home].pts+=3;groups[g][m.away].l++;}
+      else if(ag>hg){groups[g][m.away].w++;groups[g][m.away].pts+=3;groups[g][m.home].l++;}
+      else{groups[g][m.home].d++;groups[g][m.home].pts+=1;groups[g][m.away].d++;groups[g][m.away].pts+=1;}
+    }
+  });
+
+  const grid=document.getElementById('groups-grid');
+  grid.innerHTML='';
+  Object.keys(groups).sort().forEach(g=>{
+    const teams=Object.entries(groups[g])
+      .sort((a,b)=>b[1].pts-a[1].pts||(b[1].gf-b[1].ga)-(a[1].gf-a[1].ga));
+    grid.innerHTML+=`
+    <div class="group-card">
+      <div class="group-header">GRUPA ${g}</div>
+      <table class="group-table">
+        <thead><tr><th>Drużyna</th><th>M</th><th>W</th><th>R</th><th>P</th><th>Pkt</th></tr></thead>
+        <tbody>${teams.map(([name,s])=>`
+          <tr>
+            <td><span class="g-flag">${getFlag(name,'0.85rem')}</span><span class="g-name">${name}</span></td>
+            <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+            <td class="g-pts">${s.pts}</td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+  });
+}
+
 async function init(){
   try{
     const rows=await fetchData();
@@ -498,6 +563,7 @@ async function init(){
     renderNextMatch(matches);
     renderScroller(matches);
     renderTypy(matches);
+    renderGroups(matches);
   }catch(e){
     console.error(e);
     document.getElementById('standings-container').innerHTML='<div class="loading">Błąd ładowania danych</div>';
