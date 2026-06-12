@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ciężko Być Pro — Liga Typerów MŚ 2026</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -35,7 +36,7 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .match-team{flex:1;text-align:center}
 .match-team.home{text-align:right}
 .match-team.away{text-align:left}
-.team-flag{font-size:2rem;display:block;margin-bottom:4px}
+.team-flag{font-size:2.4rem;display:block;margin-bottom:6px;border-radius:4px;box-shadow:0 2px 8px #0006}
 .team-name{font-size:0.8rem;color:var(--muted);font-weight:500}
 .match-score{background:var(--dark);border:2px solid var(--green);border-radius:10px;padding:8px 20px;text-align:center;min-width:80px}
 .score-num{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:var(--green);line-height:1}
@@ -47,7 +48,7 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .next-label{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
 .next-teams{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px}
 .next-team{text-align:center}
-.next-flag{font-size:2.5rem;display:block;margin-bottom:6px}
+.next-flag{font-size:3rem;display:block;margin-bottom:8px;border-radius:5px;box-shadow:0 3px 12px #0008}
 .next-name{font-size:0.85rem;color:var(--text);font-weight:600}
 .vs-badge{font-family:'Oswald',sans-serif;font-size:1.2rem;color:var(--muted)}
 
@@ -198,19 +199,19 @@ const SHEET_ID = '1nDSbtEX92ieS00DZ0IkCfYUXw5G1Dxc95KbdbL1VIrk';
 const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA'];
 
 const FLAGS = {
-  'Meksyk':'🇲🇽','Afryka Pd.':'🇿🇦','Korea Pd.':'🇰🇷','Czechy':'🇨🇿',
-  'Kanada':'🇨🇦','Bosnia i Hercegowina':'🇧🇦','Bośnia i Hercegowina':'🇧🇦',
-  'USA':'🇺🇸','Paragwaj':'🇵🇾','Katar':'🇶🇦','Szwajcaria':'🇨🇭',
-  'Brazylia':'🇧🇷','Maroko':'🇲🇦','Haiti':'🇭🇹','Szkocja':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
-  'Australia':'🇦🇺','Turcja':'🇹🇷','Niemcy':'🇩🇪','Curacao':'🇨🇼',
-  'Wybrzeże Kości Słoniowej':'🇨🇮','Ekwador':'🇪🇨','Holandia':'🇳🇱',
-  'Japonia':'🇯🇵','Tunezja':'🇹🇳','Szwecja':'🇸🇪','Hipszania':'🇪🇸','Hiszpania':'🇪🇸',
-  'Wyspy Zielonego Przylądka':'🇨🇻','Iran':'🇮🇷','Nowa Zelandia':'🇳🇿',
-  'Arabia Saudyjska':'🇸🇦','Urugwaj':'🇺🇾','Francja':'🇫🇷','Senegal':'🇸🇳',
-  'Argentyna':'🇦🇷','Algeria':'🇩🇿','Irak':'🇮🇶','Norwegia':'🇳🇴',
-  'Austria':'🇦🇹','Jordania':'🇯🇴','Portugalia':'🇵🇹','Kongo DR':'🇨🇩',
-  'Anglia':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Chorwacja':'🇭🇷','Uzbekistan':'🇺🇿','Kolumbia':'🇨🇴',
-  'Ghana':'🇬🇭','Panama':'🇵🇦','Szkocja':'🏴󠁧󠁢󠁳󠁣󠁴󠁿'
+  'Meksyk':'mx','Afryka Pd.':'za','Korea Pd.':'kr','Czechy':'cz',
+  'Kanada':'ca','Bosnia i Hercegowina':'ba','Bośnia i Hercegowina':'ba',
+  'USA':'us','Paragwaj':'py','Katar':'qa','Szwajcaria':'ch',
+  'Brazylia':'br','Maroko':'ma','Haiti':'ht','Szkocja':'gb-sct',
+  'Australia':'au','Turcja':'tr','Niemcy':'de','Curacao':'cw','Curaçao':'cw',
+  'Wybrzeże Kości Słoniowej':'ci','Ekwador':'ec','Holandia':'nl',
+  'Japonia':'jp','Tunezja':'tn','Szwecja':'se','Hipszania':'es','Hiszpania':'es',
+  'Wyspy Zielonego Przylądka':'cv','Iran':'ir','Nowa Zelandia':'nz',
+  'Arabia Saudyjska':'sa','Urugwaj':'uy','Francja':'fr','Senegal':'sn',
+  'Argentyna':'ar','Algeria':'dz','Irak':'iq','Norwegia':'no',
+  'Austria':'at','Jordania':'jo','Portugalia':'pt','Kongo DR':'cd',
+  'Anglia':'gb-eng','Chorwacja':'hr','Uzbekistan':'uz','Kolumbia':'co',
+  'Ghana':'gh','Panama':'pa'
 };
 
 const MATCH_TIMES = {
@@ -224,7 +225,11 @@ const MATCH_TIMES = {
   '20 czerwca':['15:00','18:00','18:00','21:00'],
 };
 
-function getFlag(name){ return FLAGS[name.trim()] || '🏳️'; }
+function getFlag(name,size='1.4rem'){
+  const code=FLAGS[name.trim()];
+  if(!code)return '<span style="font-size:'+size+'">🏳️</span>';
+  return `<span class="fi fi-${code}" style="font-size:${size};border-radius:3px;box-shadow:0 1px 4px #0008;flex-shrink:0"></span>`;
+}
 
 function parseScore(s){
   if(!s||s==='-'||s.trim()==='')return null;
@@ -366,10 +371,9 @@ function renderLastMatch(matches){
   const played=matches.filter(m=>m.real);
   if(!played.length)return;
   const last=played[played.length-1];
-  const hf=getFlag(last.home),af=getFlag(last.away);
   document.getElementById('last-match-row').innerHTML=`
     <div class="match-team home">
-      <span class="team-flag">${hf}</span>
+      <span class="team-flag">${getFlag(last.home,'2.2rem')}</span>
       <span class="team-name">${last.home}</span>
     </div>
     <div class="match-score">
@@ -377,7 +381,7 @@ function renderLastMatch(matches){
       <div class="score-label">FT</div>
     </div>
     <div class="match-team away">
-      <span class="team-flag">${af}</span>
+      <span class="team-flag">${getFlag(last.away,'2.2rem')}</span>
       <span class="team-name">${last.away}</span>
     </div>`;
 }
@@ -390,12 +394,12 @@ function renderNextMatch(matches){
   const hf=getFlag(next.home),af=getFlag(next.away);
   document.getElementById('next-teams-row').innerHTML=`
     <div class="next-team">
-      <span class="next-flag">${hf}</span>
+      <span class="next-flag">${getFlag(next.home,'3rem')}</span>
       <span class="next-name">${next.home}</span>
     </div>
     <span class="vs-badge">VS</span>
     <div class="next-team">
-      <span class="next-flag">${af}</span>
+      <span class="next-flag">${getFlag(next.away,'3rem')}</span>
       <span class="next-name">${next.away}</span>
     </div>`;
 
@@ -443,7 +447,7 @@ function renderScroller(matches){
     scroll.innerHTML+=`
     <div class="scroll-item ${isNext?'active-match':''} ${played?'played':''}">
       <div class="scroll-date-col">${m.group}</div>
-      <div class="scroll-teams">${getFlag(m.home)} ${m.home} — ${m.away} ${getFlag(m.away)}</div>
+      <div class="scroll-teams" style="display:flex;align-items:center;gap:5px">${getFlag(m.home,'1rem')} ${m.home} — ${m.away} ${getFlag(m.away,'1rem')}</div>
       ${scoreHtml}
     </div>`;
   });
@@ -473,8 +477,8 @@ function renderTypy(matches){
     }).join('');
     cont.innerHTML+=`
     <div class="typy-card">
-      <div class="typy-match-name">
-        ${getFlag(m.home)} ${m.home} <span class="typy-match-score">${m.real[0]}:${m.real[1]}</span> ${m.away} ${getFlag(m.away)}
+      <div class="typy-match-name" style="display:flex;align-items:center;gap:5px;flex-wrap:wrap">
+        ${getFlag(m.home,'1.1rem')} ${m.home} <span class="typy-match-score">${m.real[0]}:${m.real[1]}</span> ${m.away} ${getFlag(m.away,'1.1rem')}
       </div>
       <div class="typy-grid">${predsHtml}</div>
     </div>`;
