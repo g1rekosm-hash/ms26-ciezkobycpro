@@ -23,10 +23,10 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .header-badge span{color:var(--green);font-weight:600}
 
 /* LAYOUT */
-.layout{display:grid;grid-template-columns:220px 1fr 260px;grid-template-rows:auto;gap:0;min-height:calc(100vh - 57px)}
+.layout{display:grid;grid-template-columns:25% 50% 25%;grid-template-rows:auto;gap:0;min-height:calc(100vh - 57px)}
 
 /* CENTER */
-.center{padding:20px;border-right:1px solid var(--border);border-left:1px solid var(--border)}
+.center{padding:20px 32px;border-right:1px solid var(--border);border-left:1px solid var(--border)}
 
 /* LAST MATCH */
 .last-match{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
@@ -77,7 +77,7 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .date-divider{padding:6px 16px;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:var(--dark2);border-bottom:1px solid var(--border)}
 
 /* LEFT — TYPY */
-.left-panel{padding:20px;overflow-y:auto}
+.left-panel{padding:20px 16px 20px 20px;overflow-y:auto}
 .typy-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
 .typy-match-name{font-size:0.8rem;font-weight:600;margin-bottom:10px;color:var(--text)}
 .typy-match-score{font-family:'Oswald',sans-serif;font-size:0.9rem;color:var(--green);float:right}
@@ -94,7 +94,7 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .typ-row.none .typ-score{color:#444}
 
 /* RIGHT — STANDINGS */
-.right-panel{padding:16px;overflow-y:auto;background:var(--dark2)}
+.right-panel{padding:20px 20px 20px 16px;overflow-y:auto;background:var(--dark2)}
 .standings-title{font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:12px;text-align:center}
 .standing-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:5px;background:var(--card);border:1px solid var(--border);transition:all 0.2s}
 .standing-row:hover{border-color:var(--gold);background:var(--card2)}
