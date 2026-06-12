@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Liga Typerów — MŚ 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0a0a1a; color: #fff; min-height: 100vh; }
+
+  header { background: linear-gradient(135deg, #1a1a3e, #0d0d2b); padding: 20px; text-align: center; border-bottom: 2px solid #ffd700; }
+  header h1 { font-size: 1.6rem; color: #ffd700; letter-spacing: 1px; }
+  header p { color: #aaa; font-size: 0.85rem; margin-top: 4px; }
+
+  nav { display: flex; background: #111130; border-bottom: 1px solid #333; overflow-x: auto; }
+  nav button { flex: 1; min-width: 100px; padding: 12px 8px; background: none; border: none; color: #aaa; font-size: 0.85rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
+  nav button.active { color: #ffd700; border-bottom-color: #ffd700; }
+  nav button:hover { color: #fff; }
+
+  .section { display: none; padding: 16px; max-width: 900px; margin: 0 auto; }
+  .section.active { display: block; }
+
+  /* TABELA */
+  .standings-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  .standings-table th { background: #1a1a3e; color: #ffd700; padding: 10px 8px; text-align: left; font-weight: 600; font-size: 0.8rem; }
+  .standings-table td { padding: 10px 8px; border-bottom: 1px solid #1a1a3e; }
+  .standings-table tr:hover td { background: #111130; }
+  .rank { font-weight: 700; color: #ffd700; width: 30px; }
+  .rank.gold { color: #ffd700; }
+  .rank.silver { color: #c0c0c0; }
+  .rank.bronze { color: #cd7f32; }
+  .player-name { font-weight: 600; font-size: 1rem; }
+  .pts { font-weight: 700; font-size: 1.1rem; color: #4caf50; }
+  .exact { color: #ffd700; font-size: 0.8rem; }
+  .medal { font-size: 1.2rem; }
+
+  /* MECZE */
+  .match-card { background: #111130; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; border: 1px solid #1e1e4a; }
+  .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .match-date { font-size: 0.75rem; color: #888; }
+  .match-group { font-size: 0.75rem; color: #ffd700; font-weight: 600; }
+  .match-teams { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 10px; }
+  .team { font-weight: 600; font-size: 1rem; flex: 1; }
+  .team.home { text-align: right; }
+  .team.away { text-align: left; }
+  .score { background: #0a0a1a; border-radius: 6px; padding: 4px 12px; font-size: 1.2rem; font-weight: 700; color: #fff; min-width: 60px; text-align: center; border: 1px solid #333; }
+  .score.final { color: #4caf50; border-color: #4caf50; }
+  .score.upcoming { color: #888; border-color: #333; font-size: 0.9rem; }
+
+  .predictions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; margin-top: 10px; }
+  .pred-item { background: #0d0d2b; border-radius: 6px; padding: 6px 8px; text-align: center; border: 1px solid #222; }
+  .pred-name { font-size: 0.65rem; color: #888; margin-bottom: 2px; }
+  .pred-score { font-size: 0.85rem; font-weight: 600; }
+  .pred-item.exact { border-color: #ffd700; background: #1a1500; }
+  .pred-item.exact .pred-score { color: #ffd700; }
+  .pred-item.correct { border-color: #4caf50; background: #001a00; }
+  .pred-item.correct .pred-score { color: #4caf50; }
+  .pred-item.wrong { border-color: #f44336; background: #1a0000; }
+  .pred-item.wrong .pred-score { color: #f44336; }
+  .pred-item.none .pred-score { color: #555; }
+  .pts-badge { font-size: 0.6rem; color: #aaa; margin-top: 1px; }
+  .pts-badge.gold { color: #ffd700; }
+  .pts-badge.green { color: #4caf50; }
+
+  .section-title { font-size: 1rem; color: #ffd700; font-weight: 600; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #1e1e4a; }
+  .upcoming-time { font-size: 0.8rem; color: #4caf50; font-weight: 600; }
+
+  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
+  .stat-card { background: #111130; border-radius: 8px; padding: 14px; text-align: center; border: 1px solid #1e1e4a; }
+  .stat-num { font-size: 1.8rem; font-weight: 700; color: #ffd700; }
+  .stat-label { font-size: 0.75rem; color: #888; margin-top: 4px; }
+
+  @media (max-width: 600px) {
+    header h1 { font-size: 1.2rem; }
+    .player-name { font-size: 0.9rem; }
+    .predictions-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🏆 Liga Typerów — MŚ 2026 ⚽</h1>
+  <p>Mistrzostwa Świata w Piłce Nożnej 2026</p>
+</header>
+
+<nav>
+  <button class="active" onclick="showTab('tabela')">🏅 Tabela</button>
+  <button onclick="showTab('wyniki')">✅ Wyniki</button>
+  <button onclick="showTab('nadchodzace')">📅 Nadchodzące</button>
+</nav>
+
+<!-- TABELA -->
+<div id="tabela" class="section active">
+  <br>
+  <div class="stats-grid">
+    <div class="stat-card"><div class="stat-num">10</div><div class="stat-label">Typerów</div></div>
+    <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Mecze rozegrane</div></div>
+    <div class="stat-card"><div class="stat-num">64</div><div class="stat-label">Meczy łącznie</div></div>
+    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Max punkty</div></div>
+  </div>
+
+  <div class="section-title">Klasyfikacja generalna</div>
+  <table class="standings-table">
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>Gracz</th>
+        <th>Pkt</th>
+        <th>Trafienia</th>
+        <th>Dokładne</th>
+      </tr>
+    </thead>
+    <tbody id="standings-body"></tbody>
+  </table>
+  <br>
+  <p style="font-size:0.75rem;color:#555;text-align:center">🟡 +3 pkt za dokładny wynik &nbsp;|&nbsp; 🟢 +1 pkt za trafiony typ</p>
+</div>
+
+<!-- WYNIKI -->
+<div id="wyniki" class="section">
+  <br>
+  <div class="section-title">Rozegrane mecze</div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">11 czerwca 2026</span>
+      <span class="match-group">GRUPA A</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇲🇽 Meksyk</span>
+      <span class="score final">2 : 0</span>
+      <span class="team away">🇿🇦 Afryka Pd.</span>
+    </div>
+    <div class="predictions-grid" id="preds-mecz1"></div>
+  </div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">11 czerwca 2026</span>
+      <span class="match-group">GRUPA A</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇰🇷 Korea Pd.</span>
+      <span class="score final">2 : 1</span>
+      <span class="team away">🇨🇿 Czechy</span>
+    </div>
+    <div class="predictions-grid" id="preds-mecz2"></div>
+  </div>
+</div>
+
+<!-- NADCHODZĄCE -->
+<div id="nadchodzace" class="section">
+  <br>
+  <div class="section-title">Najbliższe mecze</div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">12 czerwca 2026</span>
+      <span class="match-group">GRUPA B</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇨🇦 Kanada</span>
+      <span class="score upcoming">vs</span>
+      <span class="team away">🇧🇦 Bośnia i Herc.</span>
+    </div>
+  </div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">12 czerwca 2026</span>
+      <span class="match-group">GRUPA D</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇺🇸 USA</span>
+      <span class="score upcoming">vs</span>
+      <span class="team away">🇵🇾 Paragwaj</span>
+    </div>
+  </div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">13 czerwca 2026</span>
+      <span class="match-group">GRUPA B</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇶🇦 Katar</span>
+      <span class="score upcoming">vs</span>
+      <span class="team away">🇨🇭 Szwajcaria</span>
+    </div>
+  </div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">13 czerwca 2026</span>
+      <span class="match-group">GRUPA C</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇧🇷 Brazylia</span>
+      <span class="score upcoming">vs</span>
+      <span class="team away">🇲🇦 Maroko</span>
+    </div>
+  </div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">13 czerwca 2026</span>
+      <span class="match-group">GRUPA E</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇩🇪 Niemcy</span>
+      <span class="score upcoming">vs</span>
+      <span class="team away">🇨🇼 Curaçao</span>
+    </div>
+  </div>
+
+  <div class="match-card">
+    <div class="match-header">
+      <span class="match-date">14 czerwca 2026</span>
+      <span class="match-group">GRUPA F</span>
+    </div>
+    <div class="match-teams">
+      <span class="team home">🇳🇱 Holandia</span>
+      <span class="score upcoming">vs</span>
+      <span class="team away">🇯🇵 Japonia</span>
+    </div>
+  </div>
+</div>
+
+<script>
+const players = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA'];
+
+const mecz1 = {
+  home: 2, away: 0,
+  preds: {
+    PLUMPEK: [3,2], CRACK: [1,0], KROKU: [2,0], 'B-REAL': [3,0],
+    ELEKTRYCZNY: [2,1], CLINIC: [3,1], DOPADACZ: [1,1], QNIK: [2,1],
+    IMICIUS: [2,0], VEGETA: [2,0]
+  }
+};
+
+const mecz2 = {
+  home: 2, away: 1,
+  preds: {
+    PLUMPEK: [2,1], CRACK: [2,2], KROKU: [1,0], 'B-REAL': [2,2],
+    ELEKTRYCZNY: null, CLINIC: [2,1], DOPADACZ: [1,3], QNIK: [2,1],
+    IMICIUS: [3,0], VEGETA: [0,1]
+  }
+};
+
+function getOutcome(h, a) { return h > a ? 'H' : a > h ? 'A' : 'D'; }
+
+function calcPoints(pred, realH, realA) {
+  if (!pred) return 0;
+  if (pred[0] === realH && pred[1] === realA) return 3;
+  if (getOutcome(pred[0], pred[1]) === getOutcome(realH, realA)) return 1;
+  return 0;
+}
+
+function getPredClass(pred, realH, realA) {
+  if (!pred) return 'none';
+  const pts = calcPoints(pred, realH, realA);
+  if (pts === 3) return 'exact';
+  if (pts === 1) return 'correct';
+  return 'wrong';
+}
+
+function renderPreds(containerId, mecz) {
+  const el = document.getElementById(containerId);
+  players.forEach(p => {
+    const pred = mecz.preds[p];
+    const cls = getPredClass(pred, mecz.home, mecz.away);
+    const pts = calcPoints(pred, mecz.home, mecz.away);
+    const ptsClass = pts === 3 ? 'gold' : pts === 1 ? 'green' : '';
+    el.innerHTML += `
+      <div class="pred-item ${cls}">
+        <div class="pred-name">${p}</div>
+        <div class="pred-score">${pred ? pred[0]+':'+pred[1] : '—'}</div>
+        <div class="pts-badge ${ptsClass}">${pred ? '+'+pts+' pkt' : 'brak'}</div>
+      </div>`;
+  });
+}
+
+function buildStandings() {
+  const all = [mecz1, mecz2];
+  const data = players.map(p => {
+    let pts = 0, correct = 0, exact = 0;
+    all.forEach(m => {
+      const pred = m.preds[p];
+      const p2 = calcPoints(pred, m.home, m.away);
+      pts += p2;
+      if (p2 >= 1) correct++;
+      if (p2 === 3) exact++;
+    });
+    return { name: p, pts, correct, exact };
+  }).sort((a,b) => b.pts - a.pts || b.exact - a.exact);
+
+  const tbody = document.getElementById('standings-body');
+  data.forEach((d, i) => {
+    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
+    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
+    tbody.innerHTML += `
+      <tr>
+        <td class="rank ${rankClass}">${medal || (i+1)}</td>
+        <td class="player-name">${d.name}</td>
+        <td class="pts">${d.pts}</td>
+        <td style="color:#888">${d.correct}/${all.length}</td>
+        <td class="exact">⭐ ${d.exact}</td>
+      </tr>`;
+  });
+}
+
+function showTab(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+renderPreds('preds-mecz1', mecz1);
+renderPreds('preds-mecz2', mecz2);
+buildStandings();
+</script>
+</body>
+</html>
