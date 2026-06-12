@@ -263,16 +263,105 @@ const FLAGS = {
   'Ghana':'gh','Panama':'pa'
 };
 
-const MATCH_TIMES = {
-  '11 czerwca':['21:00','21:00'],'12 czerwca':['18:00','21:00'],
-  '13 czerwca':['15:00','18:00','18:00','21:00','21:00'],
-  '14 czerwca':['18:00','21:00'],'15 czerwca':['15:00','18:00'],
-  '16 czerwca':['15:00','18:00','21:00','21:00'],
-  '17 czerwca':['15:00','18:00','21:00','21:00'],
-  '18 czerwca':['15:00','18:00','21:00','21:00'],
-  '19 czerwca':['18:00','18:00','21:00','21:00','21:00'],
-  '20 czerwca':['15:00','18:00','18:00','21:00'],
+// Normalizacja nazwy drużyny do klucza (usuwa polskie znaki, spacje, interpunkcję)
+function normT(n){
+  return n.toLowerCase()
+    .replace(/ą/g,'a').replace(/ć/g,'c').replace(/ę/g,'e').replace(/ł/g,'l')
+    .replace(/ń/g,'n').replace(/ó/g,'o').replace(/ś/g,'s').replace(/ź/g,'z').replace(/ż/g,'z')
+    .replace(/[^a-z]/g,'');
+}
+// Klucz meczu niezależny od kolejności drużyn (sortowany)
+function mkey(a,b){ const na=normT(a),nb=normT(b); return na<nb?na+'|'+nb:nb+'|'+na; }
+
+const D=(mo,dd,h,m=0)=>new Date(2026,mo-1,dd,h,m,0);
+
+// Prawdziwy terminarz — godziny polskiego czasu (CEST) na podstawie oficjalnego harmonogramu MŚ 2026
+const MATCH_SCHEDULE = {
+  // Runda 1
+  [mkey('Meksyk','Afryka Pd.')]:         D(6,11,21),
+  [mkey('Korea Pd.','Czechy')]:           D(6,12, 4),
+  [mkey('Kanada','Bośnia i Hercegowina')]:D(6,12,21),
+  [mkey('Brazylia','Maroko')]:            D(6,13, 0),
+  [mkey('USA','Paragwaj')]:               D(6,13, 3),
+  [mkey('Haiti','Szkocja')]:              D(6,13, 3),
+  [mkey('Australia','Turcja')]:           D(6,13, 6),
+  [mkey('Katar','Szwajcaria')]:           D(6,13,21),
+  [mkey('Wybrzeże Kości Słoniowej','Ekwador')]: D(6,14, 1),
+  [mkey('Szwecja','Tunezja')]:            D(6,14, 4),
+  [mkey('Niemcy','Curaçao')]:             D(6,14,19),
+  [mkey('Niemcy','Curacao')]:             D(6,14,19),
+  [mkey('Holandia','Japonia')]:           D(6,14,22),
+  [mkey('Arabia Saudyjska','Urugwaj')]:   D(6,15, 0),
+  [mkey('Iran','Nowa Zelandia')]:         D(6,15, 3),
+  [mkey('Hiszpania','Wyspy Zielonego Przylądka')]: D(6,15,18),
+  [mkey('Irak','Norwegia')]:              D(6,16, 0),
+  [mkey('Argentyna','Algeria')]:          D(6,16, 3),
+  [mkey('Argentyna','Algieria')]:         D(6,16, 3),
+  [mkey('Austria','Jordania')]:           D(6,16, 6),
+  [mkey('Francja','Senegal')]:            D(6,16,21),
+  [mkey('Ghana','Panama')]:               D(6,17, 1),
+  [mkey('Uzbekistan','Kolumbia')]:        D(6,17, 4),
+  [mkey('Portugalia','Kongo DR')]:        D(6,17,19),
+  [mkey('Anglia','Chorwacja')]:           D(6,17,22),
+  // Runda 2
+  [mkey('Kanada','Katar')]:               D(6,18, 0),
+  [mkey('Meksyk','Korea Pd.')]:           D(6,18, 3),
+  [mkey('Czechy','Afryka Pd.')]:          D(6,18,18),
+  [mkey('Szwajcaria','Bośnia i Hercegowina')]: D(6,18,21),
+  [mkey('Szkocja','Maroko')]:             D(6,19, 0),
+  [mkey('Brazylia','Haiti')]:             D(6,19, 3),
+  [mkey('Turcja','Paragwaj')]:            D(6,19, 6),
+  [mkey('USA','Australia')]:              D(6,19,21),
+  [mkey('Ekwador','Curaçao')]:            D(6,20, 2),
+  [mkey('Ekwador','Curacao')]:            D(6,20, 2),
+  [mkey('Tunezja','Japonia')]:            D(6,20, 6),
+  [mkey('Holandia','Szwecja')]:           D(6,20,19),
+  [mkey('Niemcy','Wybrzeże Kości Słoniowej')]: D(6,20,22),
+  [mkey('Urugwaj','Wyspy Zielonego Przylądka')]: D(6,21, 0),
+  [mkey('Nowa Zelandia','Egipt')]:        D(6,21, 3),
+  [mkey('Hiszpania','Arabia Saudyjska')]: D(6,21,18),
+  [mkey('Norwegia','Senegal')]:           D(6,22, 2),
+  [mkey('Jordania','Algeria')]:           D(6,22, 5),
+  [mkey('Jordania','Algieria')]:          D(6,22, 5),
+  [mkey('Argentyna','Austria')]:          D(6,22,19),
+  [mkey('Francja','Irak')]:               D(6,22,23),
+  [mkey('Panama','Chorwacja')]:           D(6,23, 1),
+  [mkey('Kolumbia','Kongo DR')]:          D(6,23, 4),
+  [mkey('Portugalia','Uzbekistan')]:      D(6,23,19),
+  [mkey('Anglia','Ghana')]:               D(6,23,22),
+  // Runda 3
+  [mkey('Maroko','Haiti')]:               D(6,24, 0),
+  [mkey('Szkocja','Brazylia')]:           D(6,24, 0),
+  [mkey('Czechy','Meksyk')]:              D(6,24, 3),
+  [mkey('Afryka Pd.','Korea Pd.')]:       D(6,24, 3),
+  [mkey('Szwajcaria','Kanada')]:          D(6,24,21),
+  [mkey('Bośnia i Hercegowina','Katar')]: D(6,24,21),
+  [mkey('Japonia','Szwecja')]:            D(6,25, 1),
+  [mkey('Tunezja','Holandia')]:           D(6,25, 1),
+  [mkey('Turcja','USA')]:                 D(6,25, 4),
+  [mkey('Paragwaj','Australia')]:         D(6,25, 4),
+  [mkey('Ekwador','Niemcy')]:             D(6,25,22),
+  [mkey('Curaçao','Wybrzeże Kości Słoniowej')]: D(6,25,22),
+  [mkey('Curacao','Wybrzeże Kości Słoniowej')]: D(6,25,22),
+  [mkey('Wyspy Zielonego Przylądka','Arabia Saudyjska')]: D(6,26, 2),
+  [mkey('Urugwaj','Hiszpania')]:          D(6,26, 2),
+  [mkey('Senegal','Irak')]:               D(6,26,21),
+  [mkey('Norwegia','Francja')]:           D(6,26,21),
+  [mkey('Panama','Anglia')]:              D(6,27,23),
+  [mkey('Chorwacja','Ghana')]:            D(6,27,23),
+  [mkey('Kolumbia','Portugalia')]:        D(6,27, 1,30),
+  [mkey('Kongo DR','Uzbekistan')]:        D(6,27, 1,30),
+  [mkey('Algeria','Austria')]:            D(6,27, 4),
+  [mkey('Algieria','Austria')]:           D(6,27, 4),
+  [mkey('Jordania','Argentyna')]:         D(6,27, 4),
 };
+
+function getScheduledDt(home, away){
+  return MATCH_SCHEDULE[mkey(home,away)] || new Date(2099,0,1);
+}
+function formatDt(dt){
+  return String(dt.getHours()).padStart(2,'0')+':'+String(dt.getMinutes()).padStart(2,'0');
+}
 
 let countdownInterval = null;
 
@@ -374,16 +463,15 @@ function processData(rows){
       preds[p] = parseScore(raw);
     });
 
-    const timeIdx = dateMatchIdx[currentDate]||0;
-    const times = MATCH_TIMES[currentDate]||[];
-    const time = times[timeIdx]||'21:00';
-    dateMatchIdx[currentDate] = (timeIdx+1);
+    const home = parts[0].trim();
+    const away = parts.slice(1).join(' - ').trim();
+    const dt = getScheduledDt(home, away);
+    const time = formatDt(dt);
 
     matches.push({
       date:currentDate, group:col0,
-      home:parts[0].trim(), away:parts.slice(1).join(' - ').trim(),
-      real:realScore, preds, time,
-      dt:getMatchDateTime(currentDate,time)
+      home, away,
+      real:realScore, preds, time, dt
     });
   }
   return matches;
