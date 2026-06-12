@@ -248,19 +248,37 @@ const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPA
 const LIVE_DURATION_MS = 115 * 60 * 1000; // 115 minut
 
 const FLAGS = {
-  'Meksyk':'mx','Afryka Pd.':'za','Korea Pd.':'kr','Czechy':'cz',
+  'Meksyk':'mx','Afryka Pd.':'za','Południowa Afryka':'za','Korea Pd.':'kr','Korea Południowa':'kr','Czechy':'cz',
   'Kanada':'ca','Bosnia i Hercegowina':'ba','Bośnia i Hercegowina':'ba',
-  'USA':'us','Paragwaj':'py','Katar':'qa','Szwajcaria':'ch',
+  'USA':'us','Stany Zjednoczone':'us','Paragwaj':'py','Katar':'qa','Szwajcaria':'ch',
   'Brazylia':'br','Maroko':'ma','Haiti':'ht','Szkocja':'gb-sct',
   'Australia':'au','Turcja':'tr','Niemcy':'de','Curacao':'cw','Curaçao':'cw',
   'Wybrzeże Kości Słoniowej':'ci','Ekwador':'ec','Holandia':'nl',
   'Japonia':'jp','Tunezja':'tn','Szwecja':'se','Hipszania':'es','Hiszpania':'es',
-  'Wyspy Zielonego Przylądka':'cv','Iran':'ir','Nowa Zelandia':'nz',
+  'Wyspy Zielonego Przylądka':'cv','Republika Zielonego Przylądka':'cv',
+  'Iran':'ir','Nowa Zelandia':'nz','Belgia':'be','Egipt':'eg',
   'Arabia Saudyjska':'sa','Urugwaj':'uy','Francja':'fr','Senegal':'sn',
-  'Argentyna':'ar','Algeria':'dz','Irak':'iq','Norwegia':'no',
+  'Argentyna':'ar','Algeria':'dz','Algieria':'dz','Irak':'iq','Norwegia':'no',
   'Austria':'at','Jordania':'jo','Portugalia':'pt','Kongo DR':'cd',
+  'Demokratyczna Republika Konga':'cd',
   'Anglia':'gb-eng','Chorwacja':'hr','Uzbekistan':'uz','Kolumbia':'co',
   'Ghana':'gh','Panama':'pa'
+};
+
+// Składy grup wg oficjalnego losowania MŚ 2026
+const GROUPS = {
+  'A':['Meksyk','Afryka Pd.','Korea Pd.','Czechy'],
+  'B':['Kanada','Bośnia i Hercegowina','Katar','Szwajcaria'],
+  'C':['Brazylia','Maroko','Haiti','Szkocja'],
+  'D':['USA','Paragwaj','Australia','Turcja'],
+  'E':['Niemcy','Curaçao','Wybrzeże Kości Słoniowej','Ekwador'],
+  'F':['Holandia','Japonia','Szwecja','Tunezja'],
+  'G':['Belgia','Egipt','Iran','Nowa Zelandia'],
+  'H':['Hiszpania','Wyspy Zielonego Przylądka','Arabia Saudyjska','Urugwaj'],
+  'I':['Francja','Senegal','Irak','Norwegia'],
+  'J':['Argentyna','Algieria','Austria','Jordania'],
+  'K':['Portugalia','Kongo DR','Uzbekistan','Kolumbia'],
+  'L':['Anglia','Chorwacja','Ghana','Panama'],
 };
 
 // Normalizacja nazwy drużyny do klucza (usuwa polskie znaki, spacje, interpunkcję)
@@ -707,6 +725,11 @@ function renderTypy(matches){
 
 function renderGroups(matches){
   const groups = {};
+  // Inicjalizuj wszystkie 12 grup z kompletem drużyn
+  Object.entries(GROUPS).forEach(([g,teams])=>{
+    groups[g]={};
+    teams.forEach(t=>{ groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}; });
+  });
   matches.forEach(m=>{
     const g = m.group;
     if(!g||g.length>1) return;
