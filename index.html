@@ -3,323 +3,501 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Liga Typerów — MŚ 2026</title>
+<title>Ciężko Być Pro — Liga Typerów MŚ 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;900&family=Oswald:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  body { font-family: 'Segoe UI', sans-serif; background: #0a0a1a; color: #fff; min-height: 100vh; }
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#FFD700;--gold2:#FFA500;--dark:#080818;--dark2:#0e0e24;--dark3:#13132e;
+  --card:#161630;--card2:#1c1c3a;--border:#ffffff12;--text:#e8e8ff;--muted:#7878aa;
+  --green:#00e676;--red:#ff5252;--blue:#448aff;
+}
+body{font-family:'Inter',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;overflow-x:hidden}
 
-  header { background: linear-gradient(135deg, #1a1a3e, #0d0d2b); padding: 20px; text-align: center; border-bottom: 2px solid #ffd700; }
-  header h1 { font-size: 1.6rem; color: #ffd700; letter-spacing: 1px; }
-  header p { color: #aaa; font-size: 0.85rem; margin-top: 4px; }
+/* HEADER */
+header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bottom:1px solid var(--border);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;backdrop-filter:blur(10px)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo-text{font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:700;letter-spacing:2px;background:linear-gradient(90deg,var(--gold),var(--gold2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.logo-sub{font-size:0.65rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-top:-2px}
+.header-badge{background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:6px 14px;font-size:0.75rem;color:var(--muted)}
+.header-badge span{color:var(--green);font-weight:600}
 
-  nav { display: flex; background: #111130; border-bottom: 1px solid #333; overflow-x: auto; }
-  nav button { flex: 1; min-width: 100px; padding: 12px 8px; background: none; border: none; color: #aaa; font-size: 0.85rem; cursor: pointer; border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap; }
-  nav button.active { color: #ffd700; border-bottom-color: #ffd700; }
-  nav button:hover { color: #fff; }
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:1fr 340px 260px;grid-template-rows:auto;gap:0;min-height:calc(100vh - 57px)}
 
-  .section { display: none; padding: 16px; max-width: 900px; margin: 0 auto; }
-  .section.active { display: block; }
+/* CENTER */
+.center{padding:20px;border-right:1px solid var(--border);border-left:1px solid var(--border)}
 
-  /* TABELA */
-  .standings-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
-  .standings-table th { background: #1a1a3e; color: #ffd700; padding: 10px 8px; text-align: left; font-weight: 600; font-size: 0.8rem; }
-  .standings-table td { padding: 10px 8px; border-bottom: 1px solid #1a1a3e; }
-  .standings-table tr:hover td { background: #111130; }
-  .rank { font-weight: 700; color: #ffd700; width: 30px; }
-  .rank.gold { color: #ffd700; }
-  .rank.silver { color: #c0c0c0; }
-  .rank.bronze { color: #cd7f32; }
-  .player-name { font-weight: 600; font-size: 1rem; }
-  .pts { font-weight: 700; font-size: 1.1rem; color: #4caf50; }
-  .exact { color: #ffd700; font-size: 0.8rem; }
-  .medal { font-size: 1.2rem; }
+/* LAST MATCH */
+.last-match{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:16px}
+.section-label{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+.match-row{display:flex;align-items:center;justify-content:center;gap:16px}
+.match-team{flex:1;text-align:center}
+.match-team.home{text-align:right}
+.match-team.away{text-align:left}
+.team-flag{font-size:2rem;display:block;margin-bottom:4px}
+.team-name{font-size:0.8rem;color:var(--muted);font-weight:500}
+.match-score{background:var(--dark);border:2px solid var(--green);border-radius:10px;padding:8px 20px;text-align:center;min-width:80px}
+.score-num{font-family:'Oswald',sans-serif;font-size:2rem;font-weight:700;color:var(--green);line-height:1}
+.score-label{font-size:0.6rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase}
 
-  /* MECZE */
-  .match-card { background: #111130; border-radius: 10px; padding: 14px 16px; margin-bottom: 12px; border: 1px solid #1e1e4a; }
-  .match-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-  .match-date { font-size: 0.75rem; color: #888; }
-  .match-group { font-size: 0.75rem; color: #ffd700; font-weight: 600; }
-  .match-teams { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 10px; }
-  .team { font-weight: 600; font-size: 1rem; flex: 1; }
-  .team.home { text-align: right; }
-  .team.away { text-align: left; }
-  .score { background: #0a0a1a; border-radius: 6px; padding: 4px 12px; font-size: 1.2rem; font-weight: 700; color: #fff; min-width: 60px; text-align: center; border: 1px solid #333; }
-  .score.final { color: #4caf50; border-color: #4caf50; }
-  .score.upcoming { color: #888; border-color: #333; font-size: 0.9rem; }
+/* NEXT MATCH */
+.next-match-card{background:var(--card);border:1px solid var(--gold);border-radius:12px;padding:20px;margin-bottom:16px;text-align:center;position:relative;overflow:hidden}
+.next-match-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.next-label{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+.next-teams{display:flex;align-items:center;justify-content:center;gap:20px;margin-bottom:20px}
+.next-team{text-align:center}
+.next-flag{font-size:2.5rem;display:block;margin-bottom:6px}
+.next-name{font-size:0.85rem;color:var(--text);font-weight:600}
+.vs-badge{font-family:'Oswald',sans-serif;font-size:1.2rem;color:var(--muted)}
 
-  .predictions-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); gap: 6px; margin-top: 10px; }
-  .pred-item { background: #0d0d2b; border-radius: 6px; padding: 6px 8px; text-align: center; border: 1px solid #222; }
-  .pred-name { font-size: 0.65rem; color: #888; margin-bottom: 2px; }
-  .pred-score { font-size: 0.85rem; font-weight: 600; }
-  .pred-item.exact { border-color: #ffd700; background: #1a1500; }
-  .pred-item.exact .pred-score { color: #ffd700; }
-  .pred-item.correct { border-color: #4caf50; background: #001a00; }
-  .pred-item.correct .pred-score { color: #4caf50; }
-  .pred-item.wrong { border-color: #f44336; background: #1a0000; }
-  .pred-item.wrong .pred-score { color: #f44336; }
-  .pred-item.none .pred-score { color: #555; }
-  .pts-badge { font-size: 0.6rem; color: #aaa; margin-top: 1px; }
-  .pts-badge.gold { color: #ffd700; }
-  .pts-badge.green { color: #4caf50; }
+/* COUNTDOWN */
+.countdown{display:flex;gap:12px;justify-content:center;margin-bottom:8px}
+.cd-block{background:var(--dark);border:1px solid var(--border);border-radius:8px;padding:10px 14px;min-width:60px;text-align:center}
+.cd-num{font-family:'Oswald',sans-serif;font-size:1.8rem;font-weight:700;color:var(--gold);line-height:1}
+.cd-label{font-size:0.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
+.next-date{font-size:0.75rem;color:var(--muted);margin-top:8px}
 
-  .section-title { font-size: 1rem; color: #ffd700; font-weight: 600; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #1e1e4a; }
-  .upcoming-time { font-size: 0.8rem; color: #4caf50; font-weight: 600; }
+/* MATCH SCROLLER */
+.scroller-wrap{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.scroller-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:center}
+.scroller-title{font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--muted)}
+.match-scroll{max-height:280px;overflow-y:auto;scroll-behavior:smooth}
+.match-scroll::-webkit-scrollbar{width:3px}
+.match-scroll::-webkit-scrollbar-track{background:var(--dark)}
+.match-scroll::-webkit-scrollbar-thumb{background:var(--gold);border-radius:2px}
+.scroll-item{display:flex;align-items:center;padding:10px 16px;border-bottom:1px solid var(--border);gap:10px;transition:background 0.2s;cursor:default}
+.scroll-item:hover{background:var(--card2)}
+.scroll-item.active-match{background:linear-gradient(90deg,#1a1500,var(--card));border-left:3px solid var(--gold)}
+.scroll-item.played{opacity:0.5}
+.scroll-date-col{font-size:0.7rem;color:var(--muted);min-width:40px;text-align:center;line-height:1.3}
+.scroll-teams{flex:1;font-size:0.82rem;font-weight:500}
+.scroll-score{font-family:'Oswald',sans-serif;font-size:0.9rem;color:var(--green);min-width:40px;text-align:right}
+.scroll-score.upcoming{color:var(--muted);font-size:0.7rem}
+.date-divider{padding:6px 16px;font-size:0.65rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);background:var(--dark2);border-bottom:1px solid var(--border)}
 
-  .stats-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; margin-bottom: 20px; }
-  .stat-card { background: #111130; border-radius: 8px; padding: 14px; text-align: center; border: 1px solid #1e1e4a; }
-  .stat-num { font-size: 1.8rem; font-weight: 700; color: #ffd700; }
-  .stat-label { font-size: 0.75rem; color: #888; margin-top: 4px; }
+/* LEFT — TYPY */
+.left-panel{padding:20px;overflow-y:auto}
+.typy-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:12px}
+.typy-match-name{font-size:0.8rem;font-weight:600;margin-bottom:10px;color:var(--text)}
+.typy-match-score{font-family:'Oswald',sans-serif;font-size:0.9rem;color:var(--green);float:right}
+.typy-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;clear:both}
+.typ-row{display:flex;justify-content:space-between;align-items:center;padding:4px 8px;border-radius:5px;background:var(--dark)}
+.typ-name{font-size:0.72rem;color:var(--muted)}
+.typ-score{font-size:0.78rem;font-weight:600}
+.typ-row.exact{background:#1a1400;border:1px solid var(--gold)}
+.typ-row.exact .typ-score{color:var(--gold)}
+.typ-row.correct{background:#001200;border:1px solid #00e676}
+.typ-row.correct .typ-score{color:var(--green)}
+.typ-row.wrong{background:#1a0000;border:1px solid #ff5252}
+.typ-row.wrong .typ-score{color:var(--red)}
+.typ-row.none .typ-score{color:#444}
 
-  @media (max-width: 600px) {
-    header h1 { font-size: 1.2rem; }
-    .player-name { font-size: 0.9rem; }
-    .predictions-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
-  }
+/* RIGHT — STANDINGS */
+.right-panel{padding:16px;overflow-y:auto;background:var(--dark2)}
+.standings-title{font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:2px;color:var(--gold);margin-bottom:12px;text-align:center}
+.standing-row{display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;margin-bottom:5px;background:var(--card);border:1px solid var(--border);transition:all 0.2s}
+.standing-row:hover{border-color:var(--gold);background:var(--card2)}
+.standing-row.leader{background:linear-gradient(90deg,#1a1200,var(--card));border-color:var(--gold)}
+.st-rank{font-family:'Oswald',sans-serif;font-size:1rem;color:var(--muted);min-width:22px;text-align:center}
+.st-rank.r1{color:var(--gold)}
+.st-rank.r2{color:#c0c0c0}
+.st-rank.r3{color:#cd7f32}
+.st-name{flex:1;font-size:0.8rem;font-weight:600;letter-spacing:0.5px}
+.st-pts{font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:700;color:var(--green)}
+.st-exact{font-size:0.65rem;color:var(--gold);min-width:28px;text-align:right}
+.pts-legend{font-size:0.65rem;color:var(--muted);text-align:center;margin-top:10px;line-height:1.8}
+
+/* LOADING */
+.loading{display:flex;align-items:center;justify-content:center;height:200px;color:var(--muted);font-size:0.9rem}
+
+/* MOBILE */
+@media(max-width:900px){
+  .layout{grid-template-columns:1fr;grid-template-rows:auto}
+  .left-panel{order:3;border-top:1px solid var(--border)}
+  .center{order:1;border:none}
+  .right-panel{order:2;border-top:1px solid var(--border);background:var(--dark)}
+}
+@media(max-width:600px){
+  .countdown{gap:6px}
+  .cd-block{min-width:48px;padding:8px 10px}
+  .cd-num{font-size:1.4rem}
+  .next-flag{font-size:2rem}
+  .logo-text{font-size:1rem}
+}
 </style>
 </head>
 <body>
 
 <header>
-  <h1>🏆 Liga Typerów — MŚ 2026 ⚽</h1>
-  <p>Mistrzostwa Świata w Piłce Nożnej 2026</p>
+  <div class="logo">
+    <div>
+      <div class="logo-text">⚽ CIĘŻKO BYĆ PRO</div>
+      <div class="logo-sub">Liga Typerów · MŚ 2026</div>
+    </div>
+  </div>
+  <div class="header-badge">Mecze rozegrane: <span id="played-count">—</span></div>
 </header>
 
-<nav>
-  <button class="active" onclick="showTab('tabela')">🏅 Tabela</button>
-  <button onclick="showTab('wyniki')">✅ Wyniki</button>
-  <button onclick="showTab('nadchodzace')">📅 Nadchodzące</button>
-</nav>
+<div class="layout">
 
-<!-- TABELA -->
-<div id="tabela" class="section active">
-  <br>
-  <div class="stats-grid">
-    <div class="stat-card"><div class="stat-num">10</div><div class="stat-label">Typerów</div></div>
-    <div class="stat-card"><div class="stat-num">2</div><div class="stat-label">Mecze rozegrane</div></div>
-    <div class="stat-card"><div class="stat-num">64</div><div class="stat-label">Meczy łącznie</div></div>
-    <div class="stat-card"><div class="stat-num">3</div><div class="stat-label">Max punkty</div></div>
+  <!-- LEFT: TYPY -->
+  <div class="left-panel">
+    <div class="section-label" style="margin-bottom:12px">Ostatnie typy</div>
+    <div id="typy-container"><div class="loading">Ładowanie typów...</div></div>
   </div>
 
-  <div class="section-title">Klasyfikacja generalna</div>
-  <table class="standings-table">
-    <thead>
-      <tr>
-        <th>#</th>
-        <th>Gracz</th>
-        <th>Pkt</th>
-        <th>Trafienia</th>
-        <th>Dokładne</th>
-      </tr>
-    </thead>
-    <tbody id="standings-body"></tbody>
-  </table>
-  <br>
-  <p style="font-size:0.75rem;color:#555;text-align:center">🟡 +3 pkt za dokładny wynik &nbsp;|&nbsp; 🟢 +1 pkt za trafiony typ</p>
-</div>
+  <!-- CENTER -->
+  <div class="center">
 
-<!-- WYNIKI -->
-<div id="wyniki" class="section">
-  <br>
-  <div class="section-title">Rozegrane mecze</div>
+    <!-- OSTATNI MECZ -->
+    <div class="last-match">
+      <div class="section-label">Ostatni wynik</div>
+      <div class="match-row" id="last-match-row">
+        <div style="color:var(--muted);font-size:0.8rem">Ładowanie...</div>
+      </div>
+    </div>
 
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">11 czerwca 2026</span>
-      <span class="match-group">GRUPA A</span>
+    <!-- NASTĘPNY MECZ -->
+    <div class="next-match-card">
+      <div class="next-label">⚡ Następny mecz</div>
+      <div class="next-teams" id="next-teams-row">
+        <div style="color:var(--muted);font-size:0.8rem">Ładowanie...</div>
+      </div>
+      <div class="countdown" id="countdown">
+        <div class="cd-block"><div class="cd-num" id="cd-d">—</div><div class="cd-label">dni</div></div>
+        <div class="cd-block"><div class="cd-num" id="cd-h">—</div><div class="cd-label">godz</div></div>
+        <div class="cd-block"><div class="cd-num" id="cd-m">—</div><div class="cd-label">min</div></div>
+        <div class="cd-block"><div class="cd-num" id="cd-s">—</div><div class="cd-label">sek</div></div>
+      </div>
+      <div class="next-date" id="next-date-label"></div>
     </div>
-    <div class="match-teams">
-      <span class="team home">🇲🇽 Meksyk</span>
-      <span class="score final">2 : 0</span>
-      <span class="team away">🇿🇦 Afryka Pd.</span>
+
+    <!-- TERMINARZ -->
+    <div class="scroller-wrap">
+      <div class="scroller-header">
+        <span class="scroller-title">Terminarz</span>
+        <span style="font-size:0.7rem;color:var(--muted)" id="scroll-info"></span>
+      </div>
+      <div class="match-scroll" id="match-scroll"></div>
     </div>
-    <div class="predictions-grid" id="preds-mecz1"></div>
+
   </div>
 
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">11 czerwca 2026</span>
-      <span class="match-group">GRUPA A</span>
-    </div>
-    <div class="match-teams">
-      <span class="team home">🇰🇷 Korea Pd.</span>
-      <span class="score final">2 : 1</span>
-      <span class="team away">🇨🇿 Czechy</span>
-    </div>
-    <div class="predictions-grid" id="preds-mecz2"></div>
-  </div>
-</div>
-
-<!-- NADCHODZĄCE -->
-<div id="nadchodzace" class="section">
-  <br>
-  <div class="section-title">Najbliższe mecze</div>
-
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">12 czerwca 2026</span>
-      <span class="match-group">GRUPA B</span>
-    </div>
-    <div class="match-teams">
-      <span class="team home">🇨🇦 Kanada</span>
-      <span class="score upcoming">vs</span>
-      <span class="team away">🇧🇦 Bośnia i Herc.</span>
-    </div>
+  <!-- RIGHT: TABELA -->
+  <div class="right-panel">
+    <div class="standings-title">🏆 TABELA</div>
+    <div id="standings-container"><div class="loading">Ładowanie...</div></div>
+    <div class="pts-legend">🟡 +3 pkt dokładny wynik<br>🟢 +1 pkt trafiony typ</div>
   </div>
 
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">12 czerwca 2026</span>
-      <span class="match-group">GRUPA D</span>
-    </div>
-    <div class="match-teams">
-      <span class="team home">🇺🇸 USA</span>
-      <span class="score upcoming">vs</span>
-      <span class="team away">🇵🇾 Paragwaj</span>
-    </div>
-  </div>
-
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">13 czerwca 2026</span>
-      <span class="match-group">GRUPA B</span>
-    </div>
-    <div class="match-teams">
-      <span class="team home">🇶🇦 Katar</span>
-      <span class="score upcoming">vs</span>
-      <span class="team away">🇨🇭 Szwajcaria</span>
-    </div>
-  </div>
-
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">13 czerwca 2026</span>
-      <span class="match-group">GRUPA C</span>
-    </div>
-    <div class="match-teams">
-      <span class="team home">🇧🇷 Brazylia</span>
-      <span class="score upcoming">vs</span>
-      <span class="team away">🇲🇦 Maroko</span>
-    </div>
-  </div>
-
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">13 czerwca 2026</span>
-      <span class="match-group">GRUPA E</span>
-    </div>
-    <div class="match-teams">
-      <span class="team home">🇩🇪 Niemcy</span>
-      <span class="score upcoming">vs</span>
-      <span class="team away">🇨🇼 Curaçao</span>
-    </div>
-  </div>
-
-  <div class="match-card">
-    <div class="match-header">
-      <span class="match-date">14 czerwca 2026</span>
-      <span class="match-group">GRUPA F</span>
-    </div>
-    <div class="match-teams">
-      <span class="team home">🇳🇱 Holandia</span>
-      <span class="score upcoming">vs</span>
-      <span class="team away">🇯🇵 Japonia</span>
-    </div>
-  </div>
 </div>
 
 <script>
-const players = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA'];
+const SHEET_ID = '1nDSbtEX92ieS00DZ0IkCfYUXw5G1Dxc95KbdbL1VIrk';
+const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA'];
 
-const mecz1 = {
-  home: 2, away: 0,
-  preds: {
-    PLUMPEK: [3,2], CRACK: [1,0], KROKU: [2,0], 'B-REAL': [3,0],
-    ELEKTRYCZNY: [2,1], CLINIC: [3,1], DOPADACZ: [1,1], QNIK: [2,1],
-    IMICIUS: [2,0], VEGETA: [2,0]
-  }
+const FLAGS = {
+  'Meksyk':'🇲🇽','Afryka Pd.':'🇿🇦','Korea Pd.':'🇰🇷','Czechy':'🇨🇿',
+  'Kanada':'🇨🇦','Bosnia i Hercegowina':'🇧🇦','Bośnia i Hercegowina':'🇧🇦',
+  'USA':'🇺🇸','Paragwaj':'🇵🇾','Katar':'🇶🇦','Szwajcaria':'🇨🇭',
+  'Brazylia':'🇧🇷','Maroko':'🇲🇦','Haiti':'🇭🇹','Szkocja':'🏴󠁧󠁢󠁳󠁣󠁴󠁿',
+  'Australia':'🇦🇺','Turcja':'🇹🇷','Niemcy':'🇩🇪','Curacao':'🇨🇼',
+  'Wybrzeże Kości Słoniowej':'🇨🇮','Ekwador':'🇪🇨','Holandia':'🇳🇱',
+  'Japonia':'🇯🇵','Tunezja':'🇹🇳','Szwecja':'🇸🇪','Hipszania':'🇪🇸','Hiszpania':'🇪🇸',
+  'Wyspy Zielonego Przylądka':'🇨🇻','Iran':'🇮🇷','Nowa Zelandia':'🇳🇿',
+  'Arabia Saudyjska':'🇸🇦','Urugwaj':'🇺🇾','Francja':'🇫🇷','Senegal':'🇸🇳',
+  'Argentyna':'🇦🇷','Algeria':'🇩🇿','Irak':'🇮🇶','Norwegia':'🇳🇴',
+  'Austria':'🇦🇹','Jordania':'🇯🇴','Portugalia':'🇵🇹','Kongo DR':'🇨🇩',
+  'Anglia':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Chorwacja':'🇭🇷','Uzbekistan':'🇺🇿','Kolumbia':'🇨🇴',
+  'Ghana':'🇬🇭','Panama':'🇵🇦','Szkocja':'🏴󠁧󠁢󠁳󠁣󠁴󠁿'
 };
 
-const mecz2 = {
-  home: 2, away: 1,
-  preds: {
-    PLUMPEK: [2,1], CRACK: [2,2], KROKU: [1,0], 'B-REAL': [2,2],
-    ELEKTRYCZNY: null, CLINIC: [2,1], DOPADACZ: [1,3], QNIK: [2,1],
-    IMICIUS: [3,0], VEGETA: [0,1]
-  }
+const MATCH_TIMES = {
+  '11 czerwca':['21:00','21:00'],'12 czerwca':['18:00','21:00'],
+  '13 czerwca':['15:00','18:00','18:00','21:00','21:00'],
+  '14 czerwca':['18:00','21:00'],'15 czerwca':['15:00','18:00'],
+  '16 czerwca':['15:00','18:00','21:00','21:00'],
+  '17 czerwca':['15:00','18:00','21:00','21:00'],
+  '18 czerwca':['15:00','18:00','21:00','21:00'],
+  '19 czerwca':['18:00','18:00','21:00','21:00','21:00'],
+  '20 czerwca':['15:00','18:00','18:00','21:00'],
 };
 
-function getOutcome(h, a) { return h > a ? 'H' : a > h ? 'A' : 'D'; }
+function getFlag(name){ return FLAGS[name.trim()] || '🏳️'; }
 
-function calcPoints(pred, realH, realA) {
-  if (!pred) return 0;
-  if (pred[0] === realH && pred[1] === realA) return 3;
-  if (getOutcome(pred[0], pred[1]) === getOutcome(realH, realA)) return 1;
+function parseScore(s){
+  if(!s||s==='-'||s.trim()==='')return null;
+  const p=s.trim().split(':');
+  if(p.length!==2)return null;
+  const a=parseInt(p[0]),b=parseInt(p[1]);
+  if(isNaN(a)||isNaN(b))return null;
+  return [a,b];
+}
+
+function getOutcome(h,a){return h>a?'H':a>h?'A':'D';}
+
+function calcPts(pred,rh,ra){
+  if(!pred)return 0;
+  if(pred[0]===rh&&pred[1]===ra)return 3;
+  if(getOutcome(pred[0],pred[1])===getOutcome(rh,ra))return 1;
   return 0;
 }
 
-function getPredClass(pred, realH, realA) {
-  if (!pred) return 'none';
-  const pts = calcPoints(pred, realH, realA);
-  if (pts === 3) return 'exact';
-  if (pts === 1) return 'correct';
-  return 'wrong';
+function predClass(pred,rh,ra){
+  if(!pred)return 'none';
+  const p=calcPts(pred,rh,ra);
+  return p===3?'exact':p===1?'correct':'wrong';
 }
 
-function renderPreds(containerId, mecz) {
-  const el = document.getElementById(containerId);
-  players.forEach(p => {
-    const pred = mecz.preds[p];
-    const cls = getPredClass(pred, mecz.home, mecz.away);
-    const pts = calcPoints(pred, mecz.home, mecz.away);
-    const ptsClass = pts === 3 ? 'gold' : pts === 1 ? 'green' : '';
-    el.innerHTML += `
-      <div class="pred-item ${cls}">
-        <div class="pred-name">${p}</div>
-        <div class="pred-score">${pred ? pred[0]+':'+pred[1] : '—'}</div>
-        <div class="pts-badge ${ptsClass}">${pred ? '+'+pts+' pkt' : 'brak'}</div>
-      </div>`;
-  });
+function getMatchDateTime(dateStr, timeStr){
+  const months={'stycznia':0,'lutego':1,'marca':2,'kwietnia':3,'maja':4,'czerwca':5,'lipca':6,'sierpnia':7,'września':8,'października':9,'listopada':10,'grudnia':11};
+  const parts=dateStr.trim().split(' ');
+  const day=parseInt(parts[0]);
+  const month=months[parts[1]];
+  const [h,m]=timeStr.split(':').map(Number);
+  return new Date(2026,month,day,h,m,0);
 }
 
-function buildStandings() {
-  const all = [mecz1, mecz2];
-  const data = players.map(p => {
-    let pts = 0, correct = 0, exact = 0;
-    all.forEach(m => {
-      const pred = m.preds[p];
-      const p2 = calcPoints(pred, m.home, m.away);
-      pts += p2;
-      if (p2 >= 1) correct++;
-      if (p2 === 3) exact++;
+async function fetchData(){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv`;
+  const res=await fetch(url);
+  const text=await res.text();
+  return parseCSV(text);
+}
+
+function parseCSV(text){
+  const rows=[];
+  const lines=text.split('\n');
+  for(const line of lines){
+    const cols=[];
+    let inQ=false,cur='';
+    for(let i=0;i<line.length;i++){
+      if(line[i]==='"'){inQ=!inQ;}
+      else if(line[i]===','&&!inQ){cols.push(cur.trim());cur='';}
+      else cur+=line[i];
+    }
+    cols.push(cur.trim());
+    rows.push(cols);
+  }
+  return rows;
+}
+
+function processData(rows){
+  const matches=[];
+  let currentDate='';
+  let dateMatchIdx={};
+
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i];
+    if(!r||r.length<2)continue;
+    const col0=r[0]?r[0].replace(/"/g,'').trim():'';
+    const col1=r[1]?r[1].replace(/"/g,'').trim():'';
+
+    if(!col0&&col1&&col1.includes('czerwca')){
+      currentDate=col1;
+      dateMatchIdx[currentDate]=0;
+      continue;
+    }
+    if(!col0||!col1)continue;
+    if(col1==='SUMA'||col1==='MECZ')continue;
+
+    const parts=col1.split(' - ');
+    if(parts.length<2)continue;
+
+    const realScore=parseScore(r[11]?r[11].replace(/"/g,''):'');
+    const preds={};
+    PLAYERS.forEach((p,idx)=>{
+      const raw=r[idx+2]?r[idx+2].replace(/"/g,'').trim():'';
+      preds[p]=parseScore(raw);
     });
-    return { name: p, pts, correct, exact };
-  }).sort((a,b) => b.pts - a.pts || b.exact - a.exact);
 
-  const tbody = document.getElementById('standings-body');
-  data.forEach((d, i) => {
-    const rankClass = i === 0 ? 'gold' : i === 1 ? 'silver' : i === 2 ? 'bronze' : '';
-    const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '';
-    tbody.innerHTML += `
-      <tr>
-        <td class="rank ${rankClass}">${medal || (i+1)}</td>
-        <td class="player-name">${d.name}</td>
-        <td class="pts">${d.pts}</td>
-        <td style="color:#888">${d.correct}/${all.length}</td>
-        <td class="exact">⭐ ${d.exact}</td>
-      </tr>`;
+    const timeIdx=dateMatchIdx[currentDate]||0;
+    const times=MATCH_TIMES[currentDate]||[];
+    const time=times[timeIdx]||'21:00';
+    dateMatchIdx[currentDate]=(timeIdx+1);
+
+    matches.push({
+      date:currentDate,
+      group:col0,
+      home:parts[0].trim(),
+      away:parts.slice(1).join(' - ').trim(),
+      real:realScore,
+      preds,
+      time,
+      dt:getMatchDateTime(currentDate,time)
+    });
+  }
+  return matches;
+}
+
+function renderStandings(matches){
+  const played=matches.filter(m=>m.real);
+  const data=PLAYERS.map(p=>{
+    let pts=0,exact=0,correct=0;
+    played.forEach(m=>{
+      const pp=calcPts(m.preds[p],m.real[0],m.real[1]);
+      pts+=pp;
+      if(pp===3)exact++;
+      if(pp>=1)correct++;
+    });
+    return{name:p,pts,exact,correct};
+  }).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
+
+  document.getElementById('played-count').textContent=played.length;
+
+  const cont=document.getElementById('standings-container');
+  cont.innerHTML='';
+  data.forEach((d,i)=>{
+    const rankClass=i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
+    const leaderClass=i===0?'leader':'';
+    cont.innerHTML+=`
+    <div class="standing-row ${leaderClass}">
+      <div class="st-rank ${rankClass}">${medal||(i+1)}</div>
+      <div class="st-name">${d.name}</div>
+      <div class="st-pts">${d.pts}</div>
+      <div class="st-exact">⭐${d.exact}</div>
+    </div>`;
   });
 }
 
-function showTab(id) {
-  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  event.target.classList.add('active');
+function renderLastMatch(matches){
+  const played=matches.filter(m=>m.real);
+  if(!played.length)return;
+  const last=played[played.length-1];
+  const hf=getFlag(last.home),af=getFlag(last.away);
+  document.getElementById('last-match-row').innerHTML=`
+    <div class="match-team home">
+      <span class="team-flag">${hf}</span>
+      <span class="team-name">${last.home}</span>
+    </div>
+    <div class="match-score">
+      <div class="score-num">${last.real[0]}:${last.real[1]}</div>
+      <div class="score-label">FT</div>
+    </div>
+    <div class="match-team away">
+      <span class="team-flag">${af}</span>
+      <span class="team-name">${last.away}</span>
+    </div>`;
 }
 
-renderPreds('preds-mecz1', mecz1);
-renderPreds('preds-mecz2', mecz2);
-buildStandings();
+function renderNextMatch(matches){
+  const now=new Date();
+  const upcoming=matches.filter(m=>!m.real&&m.dt>now);
+  if(!upcoming.length)return;
+  const next=upcoming[0];
+  const hf=getFlag(next.home),af=getFlag(next.away);
+  document.getElementById('next-teams-row').innerHTML=`
+    <div class="next-team">
+      <span class="next-flag">${hf}</span>
+      <span class="next-name">${next.home}</span>
+    </div>
+    <span class="vs-badge">VS</span>
+    <div class="next-team">
+      <span class="next-flag">${af}</span>
+      <span class="next-name">${next.away}</span>
+    </div>`;
+
+  const days=['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota'];
+  document.getElementById('next-date-label').textContent=
+    `${days[next.dt.getDay()]}, ${next.date} · ${next.time} CET · Gr. ${next.group}`;
+
+  function tick(){
+    const diff=next.dt-new Date();
+    if(diff<=0){document.getElementById('cd-d').textContent='0';return;}
+    const d=Math.floor(diff/86400000);
+    const h=Math.floor((diff%86400000)/3600000);
+    const m=Math.floor((diff%3600000)/60000);
+    const s=Math.floor((diff%60000)/1000);
+    document.getElementById('cd-d').textContent=String(d).padStart(2,'0');
+    document.getElementById('cd-h').textContent=String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick,1000);
+}
+
+function renderScroller(matches){
+  const scroll=document.getElementById('match-scroll');
+  scroll.innerHTML='';
+  let lastDate='';
+  let nextIdx=-1;
+  const now=new Date();
+  matches.forEach((m,i)=>{
+    if(!m.real&&m.dt>now&&nextIdx===-1)nextIdx=i;
+  });
+  document.getElementById('scroll-info').textContent=`${matches.filter(m=>m.real).length}/${matches.length} rozegrane`;
+
+  matches.forEach((m,i)=>{
+    if(m.date!==lastDate){
+      scroll.innerHTML+=`<div class="date-divider">${m.date}</div>`;
+      lastDate=m.date;
+    }
+    const isNext=i===nextIdx;
+    const played=!!m.real;
+    const scoreHtml=played
+      ?`<span class="scroll-score">${m.real[0]}:${m.real[1]}</span>`
+      :`<span class="scroll-score upcoming">${m.time}</span>`;
+    scroll.innerHTML+=`
+    <div class="scroll-item ${isNext?'active-match':''} ${played?'played':''}">
+      <div class="scroll-date-col">${m.group}</div>
+      <div class="scroll-teams">${getFlag(m.home)} ${m.home} — ${m.away} ${getFlag(m.away)}</div>
+      ${scoreHtml}
+    </div>`;
+  });
+
+  if(nextIdx>=0){
+    setTimeout(()=>{
+      const items=scroll.querySelectorAll('.scroll-item');
+      if(items[nextIdx])items[nextIdx].scrollIntoView({block:'center',behavior:'smooth'});
+    },300);
+  }
+}
+
+function renderTypy(matches){
+  const played=matches.filter(m=>m.real).slice(-3).reverse();
+  const cont=document.getElementById('typy-container');
+  cont.innerHTML='';
+  played.forEach(m=>{
+    const predsHtml=PLAYERS.map(p=>{
+      const pred=m.preds[p];
+      const cls=predClass(pred,m.real[0],m.real[1]);
+      const pts=calcPts(pred,m.real[0],m.real[1]);
+      const ptsStr=pred?(pts>0?`+${pts}`:'✗'):'—';
+      return`<div class="typ-row ${cls}">
+        <span class="typ-name">${p}</span>
+        <span class="typ-score">${pred?pred[0]+':'+pred[1]:'—'} <small style="opacity:0.6">${ptsStr}</small></span>
+      </div>`;
+    }).join('');
+    cont.innerHTML+=`
+    <div class="typy-card">
+      <div class="typy-match-name">
+        ${getFlag(m.home)} ${m.home} <span class="typy-match-score">${m.real[0]}:${m.real[1]}</span> ${m.away} ${getFlag(m.away)}
+      </div>
+      <div class="typy-grid">${predsHtml}</div>
+    </div>`;
+  });
+}
+
+async function init(){
+  try{
+    const rows=await fetchData();
+    const matches=processData(rows);
+    renderStandings(matches);
+    renderLastMatch(matches);
+    renderNextMatch(matches);
+    renderScroller(matches);
+    renderTypy(matches);
+  }catch(e){
+    console.error(e);
+    document.getElementById('standings-container').innerHTML='<div class="loading">Błąd ładowania danych</div>';
+  }
+}
+
+init();
+setInterval(init,60000);
 </script>
 </body>
 </html>
