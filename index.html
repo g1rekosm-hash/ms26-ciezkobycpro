@@ -106,7 +106,9 @@ header{background:linear-gradient(180deg,#0a0a20 0%,var(--dark) 100%);border-bot
 .st-rank.r3{color:#cd7f32}
 .st-name{flex:1;font-size:0.8rem;font-weight:600;letter-spacing:0.5px}
 .st-pts{font-family:'Oswald',sans-serif;font-size:1.2rem;font-weight:700;color:var(--green)}
-.st-exact{font-size:0.65rem;color:var(--gold);min-width:28px;text-align:right}
+.st-exact{min-width:28px;text-align:right;display:flex;align-items:center;gap:3px;justify-content:flex-end}
+.pro-badge{display:inline-flex;align-items:center;justify-content:center;background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;font-family:'Oswald',sans-serif;font-size:0.55rem;font-weight:700;letter-spacing:0.5px;border-radius:3px;padding:1px 4px;line-height:1.2}
+.st-typed{font-size:0.65rem;color:var(--muted)}
 .pts-legend{font-size:0.65rem;color:var(--muted);text-align:center;margin-top:10px;line-height:1.8}
 
 /* LOADING */
@@ -310,7 +312,7 @@ function processData(rows){
     const parts=col1.split(' - ');
     if(parts.length<2)continue;
 
-    const realScore=parseScore(r[11]?r[11].replace(/"/g,''):'');
+    const realScore=parseScore(r[12]?r[12].replace(/"/g,''):'');
     const preds={};
     PLAYERS.forEach((p,idx)=>{
       const raw=r[idx+2]?r[idx+2].replace(/"/g,'').trim():'';
@@ -353,16 +355,18 @@ function renderStandings(matches){
 
   const cont=document.getElementById('standings-container');
   cont.innerHTML='';
+  const totalPlayed=played.length;
   data.forEach((d,i)=>{
     const rankClass=i===0?'r1':i===1?'r2':i===2?'r3':'';
     const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
     const leaderClass=i===0?'leader':'';
+    const proBadges=Array(d.exact).fill('<span class="pro-badge">PRO</span>').join('');
     cont.innerHTML+=`
     <div class="standing-row ${leaderClass}">
       <div class="st-rank ${rankClass}">${medal||(i+1)}</div>
-      <div class="st-name">${d.name}</div>
+      <div class="st-name">${d.name}<br><span class="st-typed">${d.correct}/${totalPlayed} typów</span></div>
       <div class="st-pts">${d.pts}</div>
-      <div class="st-exact">⭐${d.exact}</div>
+      <div class="st-exact">${proBadges||'—'}</div>
     </div>`;
   });
 }
@@ -461,7 +465,7 @@ function renderScroller(matches){
 }
 
 function renderTypy(matches){
-  const played=matches.filter(m=>m.real).slice(-3).reverse();
+  const played=matches.filter(m=>m.real).slice(-5).reverse();
   const cont=document.getElementById('typy-container');
   cont.innerHTML='';
   played.forEach(m=>{
