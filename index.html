@@ -220,7 +220,7 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 .group-table tr.qualified td{background:linear-gradient(90deg,#001800,transparent)}
 .g-pts{font-weight:700;color:var(--green);font-family:'Oswald',sans-serif;font-size:0.78rem}
 .g-flag{font-size:0.85rem;border-radius:2px;flex-shrink:0}
-.g-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px;font-weight:500}
+.g-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;font-weight:500}
 
 /* MOBILE */
 @media(max-width:900px){
@@ -273,6 +273,7 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
       <div class="match-row" id="last-match-row">
         <div style="color:var(--muted);font-size:0.8rem">Ładowanie...</div>
       </div>
+      <div id="last-match-yt"></div>
     </div>
 
     <!-- NASTĘPNY MECZ / LIVE — wymienialny kontener -->
@@ -310,37 +311,63 @@ const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPA
 const LIVE_DURATION_MS = 115 * 60 * 1000; // 115 minut
 
 const FLAGS = {
-  'Meksyk':'mx','Afryka Pd.':'za','Południowa Afryka':'za','Korea Pd.':'kr','Korea Południowa':'kr','Czechy':'cz',
-  'Kanada':'ca','Bosnia i Hercegowina':'ba','Bośnia i Hercegowina':'ba',
-  'USA':'us','Stany Zjednoczone':'us','Paragwaj':'py','Katar':'qa','Szwajcaria':'ch',
+  'Meksyk':'mx',
+  'Afryka Pd.':'za','Republika Południowej Afryki':'za','Południowa Afryka':'za','RPA':'za',
+  'Korea Pd.':'kr','Korea Południowa':'kr',
+  'Czechy':'cz',
+  'Kanada':'ca',
+  'Bośnia i Hercegowina':'ba','Bosnia i Hercegowina':'ba','Bośnia':'ba',
+  'Katar':'qa','Szwajcaria':'ch',
+  'USA':'us','Stany Zjednoczone':'us',
+  'Paragwaj':'py',
   'Brazylia':'br','Maroko':'ma','Haiti':'ht','Szkocja':'gb-sct',
-  'Australia':'au','Turcja':'tr','Niemcy':'de','Curacao':'cw','Curaçao':'cw',
-  'Wybrzeże Kości Słoniowej':'ci','Ekwador':'ec','Holandia':'nl',
-  'Japonia':'jp','Tunezja':'tn','Szwecja':'se','Hipszania':'es','Hiszpania':'es',
+  'Australia':'au','Turcja':'tr',
+  'Niemcy':'de',
+  'Curaçao':'cw','Curacao':'cw',
+  'Wybrzeże Kości Słoniowej':'ci','Wybrzeze Kosci Sloniowej':'ci',
+  'Ekwador':'ec',
+  'Holandia':'nl','Japonia':'jp','Tunezja':'tn','Szwecja':'se',
+  'Hiszpania':'es','Hipszania':'es',
   'Wyspy Zielonego Przylądka':'cv','Republika Zielonego Przylądka':'cv',
-  'Iran':'ir','Nowa Zelandia':'nz','Belgia':'be','Egipt':'eg',
-  'Arabia Saudyjska':'sa','Urugwaj':'uy','Francja':'fr','Senegal':'sn',
-  'Argentyna':'ar','Algeria':'dz','Algieria':'dz','Irak':'iq','Norwegia':'no',
-  'Austria':'at','Jordania':'jo','Portugalia':'pt','Kongo DR':'cd',
-  'Demokratyczna Republika Konga':'cd',
-  'Anglia':'gb-eng','Chorwacja':'hr','Uzbekistan':'uz','Kolumbia':'co',
-  'Ghana':'gh','Panama':'pa'
+  'Arabia Saudyjska':'sa','Urugwaj':'uy',
+  'Belgia':'be','Egipt':'eg','Iran':'ir','Nowa Zelandia':'nz',
+  'Francja':'fr','Senegal':'sn','Irak':'iq','Norwegia':'no',
+  'Argentyna':'ar','Algieria':'dz','Algeria':'dz','Austria':'at','Jordania':'jo',
+  'Portugalia':'pt',
+  'Kongo DR':'cd','DR Kongo':'cd','Demokratyczna Republika Konga':'cd',
+  'Uzbekistan':'uz','Kolumbia':'co',
+  'Anglia':'gb-eng','Chorwacja':'hr','Ghana':'gh','Panama':'pa'
 };
 
-// Składy grup wg oficjalnego losowania MŚ 2026
+// Składy grup wg Wikipedia.pl / meczyki.pl (oficjalne losowanie MŚ 2026)
 const GROUPS = {
-  'A':['Meksyk','Afryka Pd.','Korea Pd.','Czechy'],
+  'A':['Meksyk','Republika Południowej Afryki','Korea Południowa','Czechy'],
   'B':['Kanada','Bośnia i Hercegowina','Katar','Szwajcaria'],
   'C':['Brazylia','Maroko','Haiti','Szkocja'],
-  'D':['USA','Paragwaj','Australia','Turcja'],
+  'D':['Stany Zjednoczone','Paragwaj','Australia','Turcja'],
   'E':['Niemcy','Curaçao','Wybrzeże Kości Słoniowej','Ekwador'],
-  'F':['Holandia','Japonia','Szwecja','Tunezja'],
-  'G':['Belgia','Egipt','Iran','Nowa Zelandia'],
-  'H':['Hiszpania','Wyspy Zielonego Przylądka','Arabia Saudyjska','Urugwaj'],
-  'I':['Francja','Senegal','Irak','Norwegia'],
-  'J':['Argentyna','Algieria','Austria','Jordania'],
-  'K':['Portugalia','Kongo DR','Uzbekistan','Kolumbia'],
-  'L':['Anglia','Chorwacja','Ghana','Panama'],
+  'F':['Holandia','Japonia','Tunezja','Szwecja'],
+  'G':['Belgia','Iran','Egipt','Nowa Zelandia'],
+  'H':['Hiszpania','Urugwaj','Arabia Saudyjska','Wyspy Zielonego Przylądka'],
+  'I':['Francja','Senegal','Norwegia','Irak'],
+  'J':['Argentyna','Austria','Algieria','Jordania'],
+  'K':['Portugalia','Kolumbia','Uzbekistan','DR Kongo'],
+  'L':['Anglia','Chorwacja','Panama','Ghana'],
+};
+
+// Aliasy nazw drużyn (arkusz może używać skrótów)
+const TEAM_ALIASES = {
+  'afrykapd':'Republika Południowej Afryki',
+  'poludniowaafrykapd':'Republika Południowej Afryki',
+  'rpa':'Republika Południowej Afryki',
+  'koreapd':'Korea Południowa',
+  'usa':'Stany Zjednoczone',
+  'kongodr':'DR Kongo',
+  'wyspyzielonegoprzylad':'Wyspy Zielonego Przylądka',
+  'wyspyzielonegoprzyldk':'Wyspy Zielonego Przylądka',
+  'republikazielonegoprzylad':'Wyspy Zielonego Przylądka',
+  'wybrzezekoscisloniowej':'Wybrzeże Kości Słoniowej',
+  'curacao':'Curaçao',
 };
 
 // Szczegóły meczów: stadion, trenerzy, prawdopodobne składy (aktualizuj ręcznie)
@@ -643,16 +670,7 @@ function renderLastMatch(matches){
   const played = matches.filter(m=>m.real);
   if(!played.length) return;
   const last = played[played.length-1];
-  const ytUrl = YOUTUBE_LINKS[mkey(last.home,last.away)] || null;
-  const ytHtml = ytUrl ? `
-    <a href="${ytUrl}" target="_blank" rel="noopener" class="yt-link">
-      <div class="yt-icon">▶</div>
-      <div class="yt-text">
-        <strong>Skrót meczu — TVP Sport</strong>
-        <small>youtube.com/@TVPSport</small>
-      </div>
-      <span class="yt-arr">→</span>
-    </a>` : '';
+  const ytUrl = YOUTUBE_LINKS[mkey(last.home,last.away)] || 'https://www.youtube.com/@TVPSport';
   document.getElementById('last-match-row').innerHTML=`
     <div class="match-team home">
       <span class="team-flag">${getFlag(last.home,'2.2rem')}</span>
@@ -666,9 +684,15 @@ function renderLastMatch(matches){
       <span class="team-flag">${getFlag(last.away,'2.2rem')}</span>
       <span class="team-name">${last.away}</span>
     </div>`;
-  if(ytHtml){
-    document.querySelector('.last-match').insertAdjacentHTML('beforeend', ytHtml);
-  }
+  document.getElementById('last-match-yt').innerHTML=`
+    <a href="${ytUrl}" target="_blank" rel="noopener" class="yt-link">
+      <div class="yt-icon">▶</div>
+      <div class="yt-text">
+        <strong>Skrót meczu — TVP Sport</strong>
+        <small>youtube.com/@TVPSport</small>
+      </div>
+      <span class="yt-arr">→</span>
+    </a>`;
 }
 
 function tvpLinkHtml(){
@@ -889,11 +913,18 @@ function renderGroups(matches){
     groups[g]={};
     teams.forEach(t=>{ groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}; });
   });
-  // Rozwiąż nazwę drużyny do klucza w grupie (obsługuje różne pisownie)
+  // Rozwiąż nazwę drużyny do klucza w grupie (obsługuje skróty i różne pisownie)
   function resolveTeam(g, name){
     const n = normT(name);
+    // Szukaj bezpośredniego dopasowania normT
     const found = Object.keys(groups[g]||{}).find(k=>normT(k)===n);
     if(found) return found;
+    // Sprawdź aliasy (np. 'Afryka Pd.' → 'Republika Południowej Afryki')
+    const canonical = TEAM_ALIASES[n];
+    if(canonical){
+      const found2 = Object.keys(groups[g]||{}).find(k=>k===canonical);
+      if(found2) return found2;
+    }
     if(!groups[g]) groups[g]={};
     groups[g][name]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
     return name;
