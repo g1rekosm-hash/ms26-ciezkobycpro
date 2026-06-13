@@ -412,13 +412,20 @@ const MATCH_INFO = {
   [mkey('Anglia','Chorwacja')]:{ stadium:'AT&T Stadium, Dallas', homeCoach:'Lee Carsley', awayCoach:'Zlatko Dalić', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Pickford','Walker','Stones','Maguire','Trippier','Rice','Bellingham','Gallagher','Saka','Kane','Foden'], awayPlayers:['Livakovic','Juranović','Gvardiol','Šime Vrsaljko','Erić','Modrić','Kovačić','Brozović','Kramarić','Pašalić','Perišić'] },
 };
 
-// Linki do skrótów na YouTube / TVP Sport (uzupełnij po każdym meczu)
+// Linki do skrótów na YouTube / TVP Sport (dodawaj po każdym meczu)
 const YOUTUBE_LINKS = {
-  [mkey('Meksyk','Afryka Pd.')]: 'https://www.youtube.com/@TVPSport',
-  [mkey('Korea Pd.','Czechy')]:  'https://www.youtube.com/@TVPSport',
-  [mkey('Kanada','Bośnia i Hercegowina')]: 'https://www.youtube.com/@TVPSport',
-  // Dodawaj kolejne mecze tutaj po rozegraniu:
-  // [mkey('Brazylia','Maroko')]: 'https://www.youtube.com/watch?v=XXXX',
+  // Gr.A — Meksyk vs RPA
+  [mkey('Meksyk','Afryka Pd.')]:                'https://www.youtube.com/watch?v=Co02_5IMK6M',
+  [mkey('Meksyk','RPA')]:                        'https://www.youtube.com/watch?v=Co02_5IMK6M',
+  [mkey('Meksyk','Republika Poludniowej Afryki')]:'https://www.youtube.com/watch?v=Co02_5IMK6M',
+  // Gr.A — Korea Pd. vs Czechy
+  [mkey('Korea Pd.','Czechy')]:                  'https://www.youtube.com/watch?v=TkjEjmVFAPY',
+  [mkey('Korea Poludniowa','Czechy')]:            'https://www.youtube.com/watch?v=TkjEjmVFAPY',
+  // Gr.B — Kanada vs Bośnia i Hercegowina
+  [mkey('Kanada','Bośnia i Hercegowina')]:        'https://www.youtube.com/watch?v=mG7ewSbUjpo',
+  // Gr.D — USA vs Paragwaj
+  [mkey('USA','Paragwaj')]:                      'https://www.youtube.com/watch?v=L76rDHHAVtY',
+  [mkey('Stany Zjednoczone','Paragwaj')]:         'https://www.youtube.com/watch?v=L76rDHHAVtY',
 };
 
 // Normalizacja nazwy drużyny do klucza (usuwa polskie znaki, spacje, interpunkcję)
