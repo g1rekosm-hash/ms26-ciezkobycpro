@@ -307,7 +307,7 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 
 <script>
 const SHEET_ID = '1nDSbtEX92ieS00DZ0IkCfYUXw5G1Dxc95KbdbL1VIrk';
-const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA'];
+const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA','SALAS'];
 const LIVE_DURATION_MS = 115 * 60 * 1000; // 115 minut
 
 const FLAGS = {
@@ -621,7 +621,7 @@ function processData(rows){
     const parts = col1.split(/\s*-\s*/);
     if(parts.length<2) continue;
 
-    const realScore = parseScore(r[12]?r[12].replace(/"/g,''):'');
+    const realScore = parseScore(r[13]?r[13].replace(/"/g,''):'');
     const preds = {};
     PLAYERS.forEach((p,idx)=>{
       const raw = r[idx+2]?r[idx+2].replace(/"/g,'').trim():'';
