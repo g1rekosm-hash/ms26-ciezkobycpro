@@ -747,6 +747,45 @@ function tvpLinkHtml(url){
   </a>`;
 }
 
+// Mapowanie polskich nazw → angielskie (dla ESPN API)
+const ESPN_NAMES = {
+  'Katar':'Qatar','Szwajcaria':'Switzerland','Meksyk':'Mexico',
+  'RPA':'South Africa','Korea Południowa':'South Korea','Czechy':'Czech Republic',
+  'Kanada':'Canada','Bośnia i Hercegowina':'Bosnia','USA':'United States',
+  'Paragwaj':'Paraguay','Brazylia':'Brazil','Maroko':'Morocco',
+  'Haiti':'Haiti','Szkocja':'Scotland','Australia':'Australia','Turcja':'Turkey',
+  'Niemcy':'Germany','Curaçao':'Curaçao','Wybrzeże Kości Słoniowej':'Ivory Coast',
+  'Ekwador':'Ecuador','Holandia':'Netherlands','Japonia':'Japan',
+  'Tunezja':'Tunisia','Szwecja':'Sweden','Hiszpania':'Spain',
+  'Wyspa Zielonego Przylądka':'Cape Verde','Arabia Saudyjska':'Saudi Arabia',
+  'Urugwaj':'Uruguay','Belgia':'Belgium','Egipt':'Egypt','Iran':'Iran',
+  'Nowa Zelandia':'New Zealand','Francja':'France','Senegal':'Senegal',
+  'Irak':'Iraq','Norwegia':'Norway','Argentyna':'Argentina','Algieria':'Algeria',
+  'Austria':'Austria','Jordania':'Jordan','Portugalia':'Portugal',
+  'DR Konga':'Congo','Uzbekistan':'Uzbekistan','Kolumbia':'Colombia',
+  'Anglia':'England','Chorwacja':'Croatia','Ghana':'Ghana','Panama':'Panama'
+};
+
+async function fetchLiveScoreESPN(home, away){
+  try{
+    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/FIFA.WORLD/scoreboard');
+    if(!r.ok) return null;
+    const data = await r.json();
+    const eh = ESPN_NAMES[home]||home, ea = ESPN_NAMES[away]||away;
+    const event = (data.events||[]).find(e=>{
+      const names = (e.competitions?.[0]?.competitors||[]).map(c=>c.team?.displayName||'');
+      return names.some(n=>n.toLowerCase().includes(eh.toLowerCase().split(' ')[0]))
+          && names.some(n=>n.toLowerCase().includes(ea.toLowerCase().split(' ')[0]));
+    });
+    if(!event) return null;
+    const comps = event.competitions?.[0]?.competitors||[];
+    const hc = comps.find(c=>(c.team?.displayName||'').toLowerCase().includes(eh.toLowerCase().split(' ')[0]));
+    const ac = comps.find(c=>(c.team?.displayName||'').toLowerCase().includes(ea.toLowerCase().split(' ')[0]));
+    if(!hc||!ac) return null;
+    return [parseInt(hc.score||0), parseInt(ac.score||0)];
+  }catch(e){ return null; }
+}
+
 function renderLiveMatch(match){
   const score = match.real ? `${match.real[0]}:${match.real[1]}` : '0:0';
   const tvpUrl = TVP_LINKS[mkey(match.home,match.away)] || null;
@@ -771,6 +810,12 @@ function renderLiveMatch(match){
     ${tvpLinkHtml(tvpUrl)}
   </div>`;
   document.getElementById('live-header-dot').classList.add('active');
+  // Pobierz wynik live z ESPN (async, podmienia po załadowaniu)
+  fetchLiveScoreESPN(match.home, match.away).then(apiScore=>{
+    if(!apiScore) return;
+    const el = document.querySelector('.live-score-num');
+    if(el) el.textContent = `${apiScore[0]}:${apiScore[1]}`;
+  });
 }
 
 function buildLineupHtml(players, formation){
