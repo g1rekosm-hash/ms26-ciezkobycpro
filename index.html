@@ -63,6 +63,13 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 .cd-label{font-size:0.58rem;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-top:2px}
 .next-date{font-size:0.73rem;color:var(--muted);margin-top:8px}
 
+/* PRE-MATCH CARD */
+.prematch-card{background:linear-gradient(145deg,#0d1a08,#0a1505,#101a08);border:1px solid #88cc2255;border-radius:14px;padding:20px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 40px #66bb2215}
+.prematch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#88cc22,transparent);animation:scanline 2s ease-in-out infinite}
+.prematch-badge{display:inline-flex;align-items:center;gap:7px;background:linear-gradient(90deg,#4a8800,#66bb22);color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.78rem;letter-spacing:3px;padding:5px 16px;border-radius:20px;margin-bottom:14px;box-shadow:0 0 16px #66bb2244}
+.prematch-dot{width:8px;height:8px;background:#fff;border-radius:50%;animation:blink 1s ease-in-out infinite}
+.prematch-time{font-family:'Oswald',sans-serif;font-size:2.4rem;font-weight:700;color:#88cc22;letter-spacing:4px;margin-bottom:14px;text-shadow:0 0 30px #66bb2233}
+
 /* LIVE CARD */
 .live-card{background:linear-gradient(145deg,#1a0808,#110a0a,#140c14);border:1px solid #ff333355;border-radius:14px;padding:20px;margin-bottom:14px;text-align:center;position:relative;overflow:hidden;box-shadow:0 0 50px #ff222220}
 .live-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--live),transparent);animation:scanline 2s ease-in-out infinite}
@@ -412,6 +419,17 @@ const MATCH_INFO = {
   [mkey('Anglia','Chorwacja')]:{ stadium:'AT&T Stadium, Dallas', homeCoach:'Lee Carsley', awayCoach:'Zlatko Dalić', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Pickford','Walker','Stones','Maguire','Trippier','Rice','Bellingham','Gallagher','Saka','Kane','Foden'], awayPlayers:['Livakovic','Juranović','Gvardiol','Šime Vrsaljko','Erić','Modrić','Kovačić','Brozović','Kramarić','Pašalić','Perišić'] },
 };
 
+// Linki do transmisji live na TVP Sport (dodawaj przed każdym meczem)
+const TVP_LINKS = {
+  [mkey('Katar','Szwajcaria')]:   'https://sport.tvp.pl/93264822/katar-szwajcaria-na-zywo-transmisja-meczu-online-live-stream-1362026',
+  [mkey('Brazylia','Maroko')]:    'https://sport.tvp.pl/93264813/brazylia-maroko-na-zywo-transmisja-meczu-online-live-stream-1362026',
+  [mkey('Haiti','Szkocja')]:      'https://sport.tvp.pl/93264829/haiti-szkocja-na-zywo-transmisja-meczu-online-live-stream-1462026',
+  [mkey('Australia','Turcja')]:   'https://sport.tvp.pl/93264845/australia-turcja-na-zywo-transmisja-meczu-online-live-stream-1462026',
+  [mkey('Niemcy','Curaçao')]:     'https://sport.tvp.pl/93264850/niemcy-curacao-na-zywo-transmisja-meczu-online-live-stream-1462026',
+  [mkey('Niemcy','Curacao')]:     'https://sport.tvp.pl/93264850/niemcy-curacao-na-zywo-transmisja-meczu-online-live-stream-1462026',
+  [mkey('Holandia','Japonia')]:   'https://sport.tvp.pl/93264858/holandia-japonia-na-zywo-transmisja-meczu-online-live-stream-1462026',
+};
+
 // Linki do skrótów na YouTube / TVP Sport (dodawaj po każdym meczu)
 const YOUTUBE_LINKS = {
   // Gr.A — Meksyk vs RPA
@@ -717,12 +735,13 @@ function renderLastMatch(matches){
     </a>`;
 }
 
-function tvpLinkHtml(){
-  return `<a href="https://sport.tvp.pl" target="_blank" rel="noopener" class="tvp-link-card">
+function tvpLinkHtml(url){
+  const href = url || 'https://sport.tvp.pl';
+  return `<a href="${href}" target="_blank" rel="noopener" class="tvp-link-card">
     <div class="tvp-logo-box">TVP<br>SPORT</div>
     <div class="tvp-link-text">
       <strong>Oglądaj transmisję na żywo</strong>
-      <small>sport.tvp.pl · każdy mecz MŚ 2026</small>
+      <small>sport.tvp.pl · MŚ 2026</small>
     </div>
     <span class="tvp-arrow">→</span>
   </a>`;
@@ -730,6 +749,7 @@ function tvpLinkHtml(){
 
 function renderLiveMatch(match){
   const score = match.real ? `${match.real[0]}:${match.real[1]}` : '- : -';
+  const tvpUrl = TVP_LINKS[mkey(match.home,match.away)] || null;
   const cont = document.getElementById('next-match-container');
   cont.innerHTML = `
   <div class="live-card">
@@ -748,9 +768,8 @@ function renderLiveMatch(match){
         <span class="next-name">${match.away}</span>
       </div>
     </div>
-    ${tvpLinkHtml()}
+    ${tvpLinkHtml(tvpUrl)}
   </div>`;
-
   document.getElementById('live-header-dot').classList.add('active');
 }
 
@@ -808,10 +827,36 @@ function renderNextMatch(matches){
     return;
   }
   const next = upcoming[0];
+  const msTillNext = next.dt - now;
   const days = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota'];
   const dateLabel = `${days[next.dt.getDay()]}, ${next.date} · Gr. ${next.group}`;
-  const detailsHtml = buildMatchDetailsHtml(next.home, next.away);
+  const tvpUrl = TVP_LINKS[mkey(next.home,next.away)] || 'https://sport.tvp.pl';
 
+  // PRE-MATCH: 15 minut przed meczem
+  if(msTillNext <= 15 * 60 * 1000){
+    document.getElementById('next-match-container').innerHTML=`
+    <div class="prematch-card">
+      <div><span class="prematch-badge"><span class="prematch-dot"></span> ZARAZ MECZ</span></div>
+      <div class="prematch-time">DZIŚ ${next.time}</div>
+      <div class="live-teams" style="margin-bottom:14px">
+        <div class="next-team">
+          <span style="font-size:3rem;display:block;margin-bottom:8px">${getFlag(next.home,'3rem')}</span>
+          <span class="next-name">${next.home}</span>
+        </div>
+        <div style="font-family:'Oswald',sans-serif;font-size:1.4rem;color:var(--muted);padding-top:16px">VS</div>
+        <div class="next-team">
+          <span style="font-size:3rem;display:block;margin-bottom:8px">${getFlag(next.away,'3rem')}</span>
+          <span class="next-name">${next.away}</span>
+        </div>
+      </div>
+      ${tvpLinkHtml(tvpUrl)}
+    </div>`;
+    if(countdownInterval) clearInterval(countdownInterval);
+    return;
+  }
+
+  // Normalny widok: countdown
+  const detailsHtml = buildMatchDetailsHtml(next.home, next.away);
   document.getElementById('next-match-container').innerHTML=`
   <div class="next-match-card">
     <div class="next-label">Następny mecz</div>
@@ -835,6 +880,7 @@ function renderNextMatch(matches){
       <div class="cd-s-block"><div class="cd-s-num" id="cd-m">—</div><div class="cd-s-lbl">min</div></div>
       <div class="cd-s-block"><div class="cd-s-num" id="cd-s">—</div><div class="cd-s-lbl">sek</div></div>
     </div>
+    ${tvpUrl !== 'https://sport.tvp.pl' ? tvpLinkHtml(tvpUrl) : ''}
   </div>`;
 
   function tick(){
