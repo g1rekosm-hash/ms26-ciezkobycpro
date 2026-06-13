@@ -748,7 +748,7 @@ function tvpLinkHtml(url){
 }
 
 function renderLiveMatch(match){
-  const score = match.real ? `${match.real[0]}:${match.real[1]}` : '- : -';
+  const score = match.real ? `${match.real[0]}:${match.real[1]}` : '0:0';
   const tvpUrl = TVP_LINKS[mkey(match.home,match.away)] || null;
   const cont = document.getElementById('next-match-container');
   cont.innerHTML = `
