@@ -160,6 +160,68 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 .g-flag{font-size:0.75rem;border-radius:2px;flex-shrink:0}
 .g-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:70px}
 
+/* BIG TIME DISPLAY */
+.next-time-big{font-family:'Oswald',sans-serif;font-size:3.8rem;font-weight:700;color:var(--gold);letter-spacing:6px;line-height:1;text-shadow:0 0 40px #FFD70040;margin-bottom:2px}
+.next-time-sub{font-size:0.6rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:14px}
+
+/* MATCH DETAILS (stadium, coaches, lineup) */
+.match-details-wrap{background:var(--dark);border:1px solid var(--border);border-radius:10px;padding:11px 12px;margin-bottom:12px;text-align:left}
+.match-meta{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.match-meta-stadium{font-size:0.7rem;color:var(--text);font-weight:500;display:flex;align-items:center;gap:5px}
+.match-meta-stadium small{color:var(--muted);font-size:0.62rem}
+.match-lineup{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start}
+.lu-side{text-align:center}
+.lu-side.away{text-align:center}
+.lu-coach{font-size:0.65rem;color:var(--muted);margin-bottom:2px}
+.lu-formation{font-family:'Oswald',sans-serif;font-size:0.9rem;color:var(--gold);font-weight:600;margin-bottom:6px}
+.lu-players{display:flex;flex-direction:column;gap:3px}
+.lu-row{display:flex;gap:3px;justify-content:center;flex-wrap:wrap}
+.lu-p{background:var(--card2);border:1px solid var(--border);border-radius:3px;padding:1px 5px;font-size:0.6rem;color:var(--text);white-space:nowrap}
+.lu-p.gk{background:#001a00;border-color:#00e67633;color:var(--green)}
+.lu-divider{display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:0.7rem;font-weight:600;padding-top:22px}
+.lu-noinfo{font-size:0.65rem;color:var(--muted);font-style:italic;text-align:center;padding:8px 0}
+
+/* COUNTDOWN SMALL */
+.countdown-small{display:flex;gap:6px;justify-content:center;margin-top:10px}
+.cd-s-block{background:var(--dark);border:1px solid var(--border);border-radius:6px;padding:4px 8px;min-width:40px;text-align:center}
+.cd-s-num{font-family:'Oswald',sans-serif;font-size:1rem;font-weight:600;color:var(--muted);line-height:1}
+.cd-s-lbl{font-size:0.48rem;color:var(--muted);opacity:0.55;text-transform:uppercase;letter-spacing:1px;margin-top:1px}
+
+/* YOUTUBE HIGHLIGHT LINK */
+.yt-link{display:flex;align-items:center;gap:10px;background:linear-gradient(90deg,#0f0000,#1a0000);border:1px solid #ff000030;border-radius:10px;padding:8px 12px;text-decoration:none;margin-top:10px;transition:all 0.2s}
+.yt-link:hover{border-color:#ff4444;box-shadow:0 0 15px #ff000022;transform:translateY(-1px)}
+.yt-icon{background:#ff0000;border-radius:5px;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+.yt-text{flex:1;text-align:left}
+.yt-text strong{display:block;color:#eeeeff;font-size:0.76rem;font-weight:600}
+.yt-text small{color:#664444;font-size:0.64rem}
+.yt-arr{color:#ff4444;font-size:0.9rem;flex-shrink:0}
+
+/* PRO BADGE NOWY (jeden z licznikiem) */
+.pro-count{background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;font-family:'Oswald',sans-serif;font-weight:700;border-radius:5px;padding:3px 8px;text-align:center;line-height:1.2;display:inline-flex;flex-direction:column;align-items:center}
+.pro-count-top{font-size:0.7rem;letter-spacing:1px}
+.pro-count-bot{font-size:0.55rem;opacity:0.75;letter-spacing:0.5px}
+
+/* STANDINGS ROZBUDOWANE */
+.st-bar-wrap{flex:1;display:flex;flex-direction:column;gap:2px}
+.st-bar-row{display:flex;align-items:center;gap:6px}
+.st-bar{height:3px;border-radius:2px;background:var(--dark);flex:1;overflow:hidden}
+.st-bar-fill{height:100%;border-radius:2px;background:linear-gradient(90deg,var(--green),#00a050);transition:width 0.5s}
+
+/* GRUPY — 4 kolumny zamiast 6 */
+.groups-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.group-card{background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden;transition:border-color 0.2s}
+.group-header{background:linear-gradient(90deg,var(--dark2),#14143a);padding:5px 10px;font-family:'Oswald',sans-serif;font-size:0.78rem;color:var(--gold);letter-spacing:2px;border-bottom:1px solid var(--border)}
+.group-table{width:100%;border-collapse:collapse;font-size:0.68rem}
+.group-table th{padding:4px 5px;color:var(--muted);font-weight:500;text-align:center;font-size:0.6rem}
+.group-table th:first-child{text-align:left;padding-left:8px}
+.group-table td{padding:4px 5px;border-top:1px solid var(--border);text-align:center;color:var(--text)}
+.group-table td:first-child{text-align:left;padding-left:8px;display:flex;align-items:center;gap:5px}
+.group-table tr:hover td{background:var(--card2)}
+.group-table tr.qualified td{background:linear-gradient(90deg,#001800,transparent)}
+.g-pts{font-weight:700;color:var(--green);font-family:'Oswald',sans-serif;font-size:0.78rem}
+.g-flag{font-size:0.85rem;border-radius:2px;flex-shrink:0}
+.g-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px;font-weight:500}
+
 /* MOBILE */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr;grid-template-rows:auto}
@@ -279,6 +341,42 @@ const GROUPS = {
   'J':['Argentyna','Algieria','Austria','Jordania'],
   'K':['Portugalia','Kongo DR','Uzbekistan','Kolumbia'],
   'L':['Anglia','Chorwacja','Ghana','Panama'],
+};
+
+// Szczegóły meczów: stadion, trenerzy, prawdopodobne składy (aktualizuj ręcznie)
+const MATCH_INFO = {
+  [mkey('Meksyk','Afryka Pd.')]:{ stadium:'Estadio Akron, Guadalajara', homeCoach:'Javier Aguirre', awayCoach:'Hugo Broos', homeForm:'4-3-3', awayForm:'4-4-2', homePlayers:['Ochoa','Sánchez','Montes','Álvarez','Gallardo','Herrera','Rodríguez','Lozano','Vega','Antuna','Jiménez'], awayPlayers:['Williams','Mokoena','Thela','Modise','Tau','Mokoena B.','Ndlovu','Lyle Foster','Zwane','Dolly','Percy Tau'] },
+  [mkey('Korea Pd.','Czechy')]:{ stadium:'Estadio Akron, Guadalajara', homeCoach:'Hong Myung-bo', awayCoach:'Ivan Hašek', homeForm:'4-3-3', awayForm:'4-2-3-1', homePlayers:['Kim Seung-gyu','Kim Moon-hwan','Kim Min-jae','Jung Seung-hyun','Kim Jin-su','Jung Woo-young','Lee Jae-sung','Son Heung-min','Hwang Hee-chan','Lee Kang-in','Cho Gue-sung'], awayPlayers:['Staněk','Coufal','Kúdela','Vitík','Zelený','Souček','Sadílek','Barák','Lingr','Chytil','Kuchta'] },
+  [mkey('Kanada','Bośnia i Hercegowina')]:{ stadium:'BMO Field, Toronto', homeCoach:'Jesse Marsch', awayCoach:'Sergej Barbarez', homeForm:'4-3-3', awayForm:'4-2-3-1', homePlayers:['Crepeau','Johnston','Vitória','Cornelius','Adékugbé','Eustáquio','Kone','Laryea','Davies','Buchanan','David'], awayPlayers:['Sehić','Ćaleta-Car','Mitrović','Kvesić','Kolašinac','Pjanić','Hadžić','Statalović','Šehi','Džeko','Krušković'] },
+  [mkey('Brazylia','Maroko')]:{ stadium:'MetLife Stadium, East Rutherford', homeCoach:'Dorival Júnior', awayCoach:'Walid Regragui', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Ederson','Danilo','Marquinhos','G.Magalhães','Guilherme','Casemiro','B.Guimarães','Rodrygo','Paquetá','Vinícius Jr.','G.Martinelli'], awayPlayers:['Bono','Mazraoui','Aguerd','Saiss','Hakimi','Amrabat','Ounahi','Amallah','Ziyech','En-Nesyri','Abde'] },
+  [mkey('USA','Paragwaj')]:{ stadium:'SoFi Stadium, Los Angeles', homeCoach:'Mauricio Pochettino', awayCoach:'Daniel Garnero', homeForm:'4-3-3', awayForm:'4-4-2', homePlayers:['Turner','Dest','Richards','Zimmermann','Robinson','McKennie','T.Adams','Musah','Pulisic','Balogun','Reyna'], awayPlayers:['Silva','Alderete','Balbuena','Alonso','Espinoza','Cubas','Almirón','Romero','Enciso','Sanabria','Giménez'] },
+  [mkey('Haiti','Szkocja')]:{ stadium:'Gillette Stadium, Foxborough', homeCoach:'Marc Collat', awayCoach:'Steve Clarke', homeForm:'4-3-3', awayForm:'3-5-2', homePlayers:['Josué Duverger','Archange Desauguste','Moïse Bocage','Kevin Lafrance','Duckens Nazon','Frantzdy Pierrot','Kervens Belfort','Karène Petit-Frère','Romage Coquin','Ludovic Obraniak','James Peneau'], awayPlayers:['Gunn','Ralston','McKenna','Hendry','Tierney','McGinn','McTominay','Gilmour','Patterson','Dykes','Adams'] },
+  [mkey('Australia','Turcja')]:{ stadium:'BC Place, Vancouver', homeCoach:'Tony Popovic', awayCoach:'Vincenzo Montella', homeForm:'4-3-3', awayForm:'4-2-3-1', homePlayers:['Ryan','Atkinson','Souttar','Rowles','Behich','Irvine','Mooy','Hrustic','Leckie','Maclaren','Goodwin'], awayPlayers:['Günok','Müldür','Demiral','Söyüncü','Çelik','Özcan','Çalhanoğlu','Yüksek','Güler','Aktürkoğlu','Yildiz'] },
+  [mkey('Katar','Szwajcaria')]:{ stadium:"Levi's Stadium, Santa Clara", homeCoach:'Marquez López', awayCoach:'Murat Yakin', homeForm:'4-3-3', awayForm:'4-2-3-1', homePlayers:['Al Sheeb','Abdulkarim','Khoukhi','Al-Rawi','Hassam','Boudiaf','Al Haydos','Ismaeel','Akram','Al Moez Ali','Almoez'], awayPlayers:['Sommer','Widmer','Elvedi','Akanji','Ricardo R.','Freuler','Xhaka','Vargas','Shaqiri','Amdouni','Embolo'] },
+  [mkey('Wybrzeże Kości Słoniowej','Ekwador')]:{ stadium:'Lincoln Financial Field, Filadelfia', homeCoach:'Emerse Faé', awayCoach:'Sébastien Beccacece', homeForm:'4-3-3', awayForm:'4-3-3', homePlayers:['Sangaré','Aurier','Badé','Konaté','Kossounou','Seri','Kessié','Zaha','Pépé','Haller','Gradel'], awayPlayers:['Domínguez','Preciado','Pacho','Torres D.','Estupiñán','Plata','Caicedo','Méndez','Sarmiento','Enner Valencia','Estrada'] },
+  [mkey('Szwecja','Tunezja')]:{ stadium:'Estadio BBVA, Monterrey', homeCoach:'Jon Dahl Tomasson', awayCoach:'Jalel Kadri', homeForm:'4-4-2', awayForm:'4-3-3', homePlayers:['Olsen','Krafth','Lindelöf','Danielson','Augustinsson','Forsberg','Ekdal','Svanberg','Claesson','Ibrahimović','Isak'], awayPlayers:['Dahmen','Bronn','Talbi','Meriah','Ghandri','Khazri','Ben Romdhane','Laidouni','Trésor','Jaziri','Msakni'] },
+  [mkey('Niemcy','Curaçao')]:{ stadium:'NRG Stadium, Houston', homeCoach:'Julian Nagelsmann', awayCoach:'Remko Bicentini', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Neuer','Kimmich','Schlotterbeck','Rüdiger','Raum','Goretzka','Kroos','Wirtz','Sané','Müller','Havertz'], awayPlayers:['Sulvaran','Cijntje','Juliana','La Parade','Aias','Fleming','Marenthe','van den Berg','Merencia','Serbeni','Pereira'] },
+  [mkey('Holandia','Japonia')]:{ stadium:'AT&T Stadium, Dallas', homeCoach:'Ronald Koeman', awayCoach:'Hajime Moriyasu', homeForm:'3-4-1-2', awayForm:'4-2-3-1', homePlayers:['Flekken','de Ligt','van Dijk','Timber','Dumfries','de Jong','Schouten','Blind','Gakpo','Depay','Weghorst'], awayPlayers:['Gonda','Tomiyasu','Itakura','Yoshida','Nagatomo','Endo','Tanaka','Kamada','Kubo','Mitoma','Maeda'] },
+  [mkey('Arabia Saudyjska','Urugwaj')]:{ stadium:'Hard Rock Stadium, Miami', homeCoach:'Roberto Mancini', awayCoach:'Marcelo Bielsa', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Al-Owais','Al-Shahrani','Al-Bulaihi','Al-Tambakti','Sultan','Kanno','Abdulelah','Al-Malki','Salem','Al-Dawsari','Firas'] ,awayPlayers:['Rochet','Nández','Giménez','Godín','Olivera','Valverde','Bentancur','Vecino','De Arrascaeta','Suárez','Núñez'] },
+  [mkey('Iran','Nowa Zelandia')]:{ stadium:'SoFi Stadium, Los Angeles', homeCoach:'Amir Ghalenoei', awayCoach:'Darren Bazeley', homeForm:'4-2-3-1', awayForm:'4-4-2', homePlayers:['Beiranvand','Moharrami','Pouraliganji','Hosseini','Mohammadi','Ezatolahi','Noorollahi','Jahanbakhsh','Taremi','Azmoun','Gholizadeh'], awayPlayers:['Sail','Gould','Daley','McNamara','Wellenreuther','Bell','Thomas','Mata','Hooper','Keet','Cacace'] },
+  [mkey('Hiszpania','Wyspy Zielonego Przylądka')]:{ stadium:'Mercedes-Benz Stadium, Atlanta', homeCoach:'Luis de la Fuente', awayCoach:'Pedro Brito', homeForm:'4-3-3', awayForm:'4-4-2', homePlayers:['Unai Simón','Carvajal','Laporte','Le Normand','Grimaldo','Rodri','Pedri','Gavi','Williams N.','Morata','Oyarzabal'], awayPlayers:['Vozinha','Fali','Ronie Almeida','Stopira','Carlitos','Ryan Mendes','Jamiro','Nuno Borges','Garry Rodrigues','Djaniny','Julio Tavares'] },
+  [mkey('Irak','Norwegia')]:{ stadium:'Gillette Stadium, Foxborough', homeCoach:'Jesús Casas', awayCoach:'Ståle Solbakken', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Bashar Rasan','Ali Faez','Amjed Attwan','Rebin Sulaka','Saad Abdul Amir','Mahdi Torabi','Alaa Abbas','Mohanad Ali','Awer Mabil','Amar Barakat','Jassim Mohammed'], awayPlayers:['Nyland','Ryerson','Hanche-Olsen','Ajer','Reginiussen','Normann','Øsdigård','Berge','Ødegaard','Haaland','Dahl'] },
+  [mkey('Argentyna','Algieria')]:{ stadium:'Arrowhead Stadium, Kansas City', homeCoach:'Lionel Scaloni', awayCoach:'Pepe', homeForm:'4-3-3', awayForm:'4-3-3', homePlayers:['Dibu Martínez','Montiel','Romero','Lisandro Martínez','Acuña','De Paul','Mac Allister','Paredes','Di María','Messi','Álvarez J.'], awayPlayers:['Mandrea','Atal','Mandi','Benlamri','Bensebaini','Bennacer','Guedioura','Feghouli','Belhanda','Belaili','Mahrez'] },
+  [mkey('Austria','Jordania')]:{ stadium:"Levi's Stadium, Santa Clara", homeCoach:'Ralf Rangnick', awayCoach:'Hasan Abdul-Latif', homeForm:'4-3-3', awayForm:'4-4-2', homePlayers:['Pentz','Posch','Lienhart','Hinteregger','Alaba','X.Schlager','Laimer','Sabitzer','Baumgartner','Gregoritsch','Arnautović'], awayPlayers:['Amer Shafi','Al-Rawabdeh','Al-Rawajfeh','Nazmi','Qasim','Bani Yaseen','Ziad Tarawneh','Musa','Ahmad Hayel','Hamdan','Anas Bani-Yaseen'] },
+  [mkey('Francja','Senegal')]:{ stadium:'MetLife Stadium, East Rutherford', homeCoach:'Didier Deschamps', awayCoach:'Aliou Cissé', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Maignan','Pavard','Varane','Upamecano','T.Hernández','Kanté','Tchouaméni','Camavinga','Mbappé','Griezmann','Dembélé'], awayPlayers:['Mendy','Sabaly','Koulibaly','Diallo','Jakobs','Nampalys','Gueye','Kouyaté','Diedhiou','Mané','Sarr'] },
+  [mkey('Ghana','Panama')]:{ stadium:'BMO Field, Toronto', homeCoach:'Otto Addo', awayCoach:'Thomas Christiansen', homeForm:'4-2-3-1', awayForm:'4-4-2', homePlayers:['Ati-Zigi','Lamptey','Amartey','Djiku','Rahman','Partey','Samed','André Ayew','Jordan Ayew','Kudus','Issahaku'], awayPlayers:['Mosquera','Murillo','Escobar','Davis','Godoy','Carrasquilla','Quintero','Fajardo','Córdoba','Barría','Tejada'] },
+  [mkey('Uzbekistan','Kolumbia')]:{ stadium:'Estadio Azteca, Mexico City', homeCoach:'Srecko Katanec', awayCoach:'Néstor Lorenzo', homeForm:'4-3-3', awayForm:'4-3-3', homePlayers:['Suyunov','Khamdamov','Ashurmatov','Tukhtahujaev','Hamroyev','Masharipov','Komilov','Jaloliddinov','Yusupov','Shomurodov','Maxim Sidelnikov'], awayPlayers:['Vargas','Muñoz','Sanchez','Mina','Mojica','Barrios','Uribe','Cuadrado','Luis Díaz','Falcao','Borre'] },
+  [mkey('Portugalia','Kongo DR')]:{ stadium:'NRG Stadium, Houston', homeCoach:'Roberto Martínez', awayCoach:'Sébastien Desabre', homeForm:'4-3-3', awayForm:'4-4-2', homePlayers:['Costa','Cancelo','Dias','Pepe','Guerreiro','B.Fernandes','Palinha','Vitinha','Leão','Ronaldo','Diogo Jota'], awayPlayers:['Matampi','Moke','Mbemba','Tisserand','Mputu','Malango','Benzia','Bolasie','Bope Trésor','Chadrac Akolo','Dieumerci Ndongala'] },
+  [mkey('Anglia','Chorwacja')]:{ stadium:'AT&T Stadium, Dallas', homeCoach:'Lee Carsley', awayCoach:'Zlatko Dalić', homeForm:'4-2-3-1', awayForm:'4-3-3', homePlayers:['Pickford','Walker','Stones','Maguire','Trippier','Rice','Bellingham','Gallagher','Saka','Kane','Foden'], awayPlayers:['Livakovic','Juranović','Gvardiol','Šime Vrsaljko','Erić','Modrić','Kovačić','Brozović','Kramarić','Pašalić','Perišić'] },
+};
+
+// Linki do skrótów na YouTube / TVP Sport (uzupełnij po każdym meczu)
+const YOUTUBE_LINKS = {
+  [mkey('Meksyk','Afryka Pd.')]: 'https://www.youtube.com/@TVPSport',
+  [mkey('Korea Pd.','Czechy')]:  'https://www.youtube.com/@TVPSport',
+  [mkey('Kanada','Bośnia i Hercegowina')]: 'https://www.youtube.com/@TVPSport',
+  // Dodawaj kolejne mecze tutaj po rozegraniu:
+  // [mkey('Brazylia','Maroko')]: 'https://www.youtube.com/watch?v=XXXX',
 };
 
 // Normalizacja nazwy drużyny do klucza (usuwa polskie znaki, spacje, interpunkcję)
@@ -509,21 +607,34 @@ function renderStandings(matches){
   }).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
 
   document.getElementById('played-count').textContent = played.length;
+  const maxPts = data[0]?.pts || 1;
+  const totalPlayed = played.length;
 
   const cont = document.getElementById('standings-container');
   cont.innerHTML = '';
-  const totalPlayed = played.length;
   data.forEach((d,i)=>{
     const rankClass = i===0?'r1':i===1?'r2':i===2?'r3':'';
     const medal = i===0?'🥇':i===1?'🥈':i===2?'🥉':'';
     const leaderClass = i===0?'leader':'';
-    const proBadges = Array(d.exact).fill('<span class="pro-badge">PRO</span>').join('');
+    const pct = totalPlayed ? Math.round(d.correct/totalPlayed*100) : 0;
+    const barW = maxPts ? Math.round(d.pts/maxPts*100) : 0;
+    const proBadge = d.exact>0
+      ? `<div class="pro-count"><span class="pro-count-top">PRO</span><span class="pro-count-bot">×${d.exact}</span></div>`
+      : `<span style="font-size:0.65rem;color:var(--muted)">—</span>`;
     cont.innerHTML+=`
     <div class="standing-row ${leaderClass}">
       <div class="st-rank ${rankClass}">${medal||(i+1)}</div>
-      <div class="st-name">${d.name}<br><span class="st-typed">${d.correct}/${totalPlayed} typów</span></div>
+      <div class="st-bar-wrap">
+        <div class="st-bar-row">
+          <span class="st-name" style="flex:none">${d.name}</span>
+        </div>
+        <div class="st-bar-row">
+          <div class="st-bar"><div class="st-bar-fill" style="width:${barW}%"></div></div>
+          <span style="font-size:0.6rem;color:var(--muted);white-space:nowrap">${d.correct}/${totalPlayed} · ${pct}%</span>
+        </div>
+      </div>
       <div class="st-pts">${d.pts}</div>
-      <div class="st-exact">${proBadges||'—'}</div>
+      <div class="st-exact">${proBadge}</div>
     </div>`;
   });
 }
@@ -532,6 +643,16 @@ function renderLastMatch(matches){
   const played = matches.filter(m=>m.real);
   if(!played.length) return;
   const last = played[played.length-1];
+  const ytUrl = YOUTUBE_LINKS[mkey(last.home,last.away)] || null;
+  const ytHtml = ytUrl ? `
+    <a href="${ytUrl}" target="_blank" rel="noopener" class="yt-link">
+      <div class="yt-icon">▶</div>
+      <div class="yt-text">
+        <strong>Skrót meczu — TVP Sport</strong>
+        <small>youtube.com/@TVPSport</small>
+      </div>
+      <span class="yt-arr">→</span>
+    </a>` : '';
   document.getElementById('last-match-row').innerHTML=`
     <div class="match-team home">
       <span class="team-flag">${getFlag(last.home,'2.2rem')}</span>
@@ -545,6 +666,9 @@ function renderLastMatch(matches){
       <span class="team-flag">${getFlag(last.away,'2.2rem')}</span>
       <span class="team-name">${last.away}</span>
     </div>`;
+  if(ytHtml){
+    document.querySelector('.last-match').insertAdjacentHTML('beforeend', ytHtml);
+  }
 }
 
 function tvpLinkHtml(){
@@ -584,10 +708,45 @@ function renderLiveMatch(match){
   document.getElementById('live-header-dot').classList.add('active');
 }
 
+function buildLineupHtml(players, formation){
+  if(!players||!players.length) return '<div class="lu-noinfo">Skład nieznany</div>';
+  const sections = [1,...formation.split('-').map(Number)];
+  const rows = [];
+  let idx = 0;
+  for(const cnt of sections){ rows.push(players.slice(idx,idx+cnt)); idx+=cnt; }
+  return rows.reverse().map((row,ri)=>
+    `<div class="lu-row">${row.map(p=>`<span class="lu-p${ri===rows.length-1?' gk':''}">${p}</span>`).join('')}</div>`
+  ).join('');
+}
+
+function buildMatchDetailsHtml(home, away){
+  const info = MATCH_INFO[mkey(home,away)];
+  if(!info) return '';
+  const hL = buildLineupHtml(info.homePlayers, info.homeForm||'4-3-3');
+  const aL = buildLineupHtml(info.awayPlayers, info.awayForm||'4-3-3');
+  return `
+  <div class="match-details-wrap">
+    <div class="match-meta">
+      <div class="match-meta-stadium">🏟 <div><span>${info.stadium}</span></div></div>
+    </div>
+    <div class="match-lineup">
+      <div class="lu-side">
+        <div class="lu-coach">🧑‍💼 ${info.homeCoach}</div>
+        <div class="lu-formation">${info.homeForm||'—'}</div>
+        <div class="lu-players">${hL}</div>
+      </div>
+      <div class="lu-divider">VS</div>
+      <div class="lu-side away">
+        <div class="lu-coach">🧑‍💼 ${info.awayCoach}</div>
+        <div class="lu-formation">${info.awayForm||'—'}</div>
+        <div class="lu-players">${aL}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
 function renderNextMatch(matches){
   const now = new Date();
-
-  // Sprawdź czy jest mecz na żywo
   const liveMatch = matches.find(m => isLive(m));
   if(liveMatch){
     renderLiveMatch(liveMatch);
@@ -603,46 +762,46 @@ function renderNextMatch(matches){
     return;
   }
   const next = upcoming[0];
-
   const days = ['niedziela','poniedziałek','wtorek','środa','czwartek','piątek','sobota'];
-  const dateLabel = `${days[next.dt.getDay()]}, ${next.date} · ${next.time} CET · Gr. ${next.group}`;
+  const dateLabel = `${days[next.dt.getDay()]}, ${next.date} · Gr. ${next.group}`;
+  const detailsHtml = buildMatchDetailsHtml(next.home, next.away);
 
   document.getElementById('next-match-container').innerHTML=`
   <div class="next-match-card">
-    <div class="next-label">⚡ Następny mecz</div>
+    <div class="next-label">Następny mecz</div>
+    <div class="next-time-big">${next.time}</div>
+    <div class="next-time-sub">CEST · ${dateLabel}</div>
     <div class="next-teams">
       <div class="next-team">
-        <span class="next-flag">${getFlag(next.home,'3rem')}</span>
+        <span class="next-flag">${getFlag(next.home,'2.8rem')}</span>
         <span class="next-name">${next.home}</span>
       </div>
       <span class="vs-badge">VS</span>
       <div class="next-team">
-        <span class="next-flag">${getFlag(next.away,'3rem')}</span>
+        <span class="next-flag">${getFlag(next.away,'2.8rem')}</span>
         <span class="next-name">${next.away}</span>
       </div>
     </div>
-    <div class="countdown">
-      <div class="cd-block"><div class="cd-num" id="cd-d">—</div><div class="cd-label">dni</div></div>
-      <div class="cd-block"><div class="cd-num" id="cd-h">—</div><div class="cd-label">godz</div></div>
-      <div class="cd-block"><div class="cd-num" id="cd-m">—</div><div class="cd-label">min</div></div>
-      <div class="cd-block"><div class="cd-num" id="cd-s">—</div><div class="cd-label">sek</div></div>
+    ${detailsHtml}
+    <div class="countdown-small">
+      <div class="cd-s-block"><div class="cd-s-num" id="cd-d">—</div><div class="cd-s-lbl">dni</div></div>
+      <div class="cd-s-block"><div class="cd-s-num" id="cd-h">—</div><div class="cd-s-lbl">godz</div></div>
+      <div class="cd-s-block"><div class="cd-s-num" id="cd-m">—</div><div class="cd-s-lbl">min</div></div>
+      <div class="cd-s-block"><div class="cd-s-num" id="cd-s">—</div><div class="cd-s-lbl">sek</div></div>
     </div>
-    <div class="next-date">${dateLabel}</div>
   </div>`;
 
   function tick(){
     const diff = next.dt - new Date();
     if(diff<=0){ clearInterval(countdownInterval); return; }
-    const d = Math.floor(diff/86400000);
-    const h = Math.floor((diff%86400000)/3600000);
-    const m = Math.floor((diff%3600000)/60000);
-    const s = Math.floor((diff%60000)/1000);
-    const cdD = document.getElementById('cd-d');
-    if(!cdD) return;
-    cdD.textContent = String(d).padStart(2,'0');
-    document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
-    document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
-    document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+    const dd=Math.floor(diff/86400000), hh=Math.floor((diff%86400000)/3600000),
+          mm=Math.floor((diff%3600000)/60000), ss=Math.floor((diff%60000)/1000);
+    const el = document.getElementById('cd-d');
+    if(!el) return;
+    el.textContent=String(dd).padStart(2,'0');
+    document.getElementById('cd-h').textContent=String(hh).padStart(2,'0');
+    document.getElementById('cd-m').textContent=String(mm).padStart(2,'0');
+    document.getElementById('cd-s').textContent=String(ss).padStart(2,'0');
   }
   tick();
   if(countdownInterval) clearInterval(countdownInterval);
@@ -730,21 +889,30 @@ function renderGroups(matches){
     groups[g]={};
     teams.forEach(t=>{ groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}; });
   });
+  // Rozwiąż nazwę drużyny do klucza w grupie (obsługuje różne pisownie)
+  function resolveTeam(g, name){
+    const n = normT(name);
+    const found = Object.keys(groups[g]||{}).find(k=>normT(k)===n);
+    if(found) return found;
+    if(!groups[g]) groups[g]={};
+    groups[g][name]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
+    return name;
+  }
+
   matches.forEach(m=>{
     const g = m.group;
     if(!g||g.length>1) return;
     if(!groups[g]) groups[g]={};
-    [m.home,m.away].forEach(t=>{
-      if(!groups[g][t]) groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
-    });
+    const home = resolveTeam(g, m.home);
+    const away = resolveTeam(g, m.away);
     if(m.real){
       const[hg,ag]=m.real;
-      groups[g][m.home].p++;groups[g][m.away].p++;
-      groups[g][m.home].gf+=hg;groups[g][m.home].ga+=ag;
-      groups[g][m.away].gf+=ag;groups[g][m.away].ga+=hg;
-      if(hg>ag){groups[g][m.home].w++;groups[g][m.home].pts+=3;groups[g][m.away].l++;}
-      else if(ag>hg){groups[g][m.away].w++;groups[g][m.away].pts+=3;groups[g][m.home].l++;}
-      else{groups[g][m.home].d++;groups[g][m.home].pts+=1;groups[g][m.away].d++;groups[g][m.away].pts+=1;}
+      groups[g][home].p++;groups[g][away].p++;
+      groups[g][home].gf+=hg;groups[g][home].ga+=ag;
+      groups[g][away].gf+=ag;groups[g][away].ga+=hg;
+      if(hg>ag){groups[g][home].w++;groups[g][home].pts+=3;groups[g][away].l++;}
+      else if(ag>hg){groups[g][away].w++;groups[g][away].pts+=3;groups[g][home].l++;}
+      else{groups[g][home].d++;groups[g][home].pts+=1;groups[g][away].d++;groups[g][away].pts+=1;}
     }
   });
 
