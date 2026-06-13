@@ -928,21 +928,17 @@ function renderGroups(matches){
     groups[g]={};
     teams.forEach(t=>{ groups[g][t]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0}; });
   });
-  // Rozwiąż nazwę drużyny do klucza w grupie (obsługuje skróty i różne pisownie)
+  // Rozwiąż nazwę drużyny do klucza w grupie — zwraca null jeśli nie znaleziono
   function resolveTeam(g, name){
     const n = normT(name);
-    // Szukaj bezpośredniego dopasowania normT
     const found = Object.keys(groups[g]||{}).find(k=>normT(k)===n);
     if(found) return found;
-    // Sprawdź aliasy (np. 'Afryka Pd.' → 'Republika Południowej Afryki')
     const canonical = TEAM_ALIASES[n];
     if(canonical){
       const found2 = Object.keys(groups[g]||{}).find(k=>k===canonical);
       if(found2) return found2;
     }
-    if(!groups[g]) groups[g]={};
-    groups[g][name]={p:0,w:0,d:0,l:0,gf:0,ga:0,pts:0};
-    return name;
+    return null; // Nieznana drużyna — nie dodawaj do tabeli
   }
 
   matches.forEach(m=>{
@@ -951,6 +947,7 @@ function renderGroups(matches){
     if(!groups[g]) groups[g]={};
     const home = resolveTeam(g, m.home);
     const away = resolveTeam(g, m.away);
+    if(!home||!away) return; // Pomiń jeśli drużyna nie jest w tej grupie
     if(m.real){
       const[hg,ag]=m.real;
       groups[g][home].p++;groups[g][away].p++;
