@@ -312,8 +312,8 @@ const LIVE_DURATION_MS = 115 * 60 * 1000; // 115 minut
 
 const FLAGS = {
   'Meksyk':'mx',
-  'Afryka Pd.':'za','Republika Południowej Afryki':'za','Południowa Afryka':'za','RPA':'za',
-  'Korea Pd.':'kr','Korea Południowa':'kr',
+  'RPA':'za','Afryka Pd.':'za','Republika Południowej Afryki':'za','Południowa Afryka':'za',
+  'Korea Południowa':'kr','Korea Pd.':'kr',
   'Czechy':'cz',
   'Kanada':'ca',
   'Bośnia i Hercegowina':'ba','Bosnia i Hercegowina':'ba','Bośnia':'ba',
@@ -324,50 +324,65 @@ const FLAGS = {
   'Australia':'au','Turcja':'tr',
   'Niemcy':'de',
   'Curaçao':'cw','Curacao':'cw',
-  'Wybrzeże Kości Słoniowej':'ci','Wybrzeze Kosci Sloniowej':'ci',
+  'Wybrzeże Kości Słoniowej':'ci',
   'Ekwador':'ec',
   'Holandia':'nl','Japonia':'jp','Tunezja':'tn','Szwecja':'se',
   'Hiszpania':'es','Hipszania':'es',
-  'Wyspy Zielonego Przylądka':'cv','Republika Zielonego Przylądka':'cv',
+  'Wyspa Zielonego Przylądka':'cv','Wyspy Zielonego Przylądka':'cv','Republika Zielonego Przylądka':'cv',
   'Arabia Saudyjska':'sa','Urugwaj':'uy',
   'Belgia':'be','Egipt':'eg','Iran':'ir','Nowa Zelandia':'nz',
   'Francja':'fr','Senegal':'sn','Irak':'iq','Norwegia':'no',
   'Argentyna':'ar','Algieria':'dz','Algeria':'dz','Austria':'at','Jordania':'jo',
   'Portugalia':'pt',
-  'Kongo DR':'cd','DR Kongo':'cd','Demokratyczna Republika Konga':'cd',
+  'DR Konga':'cd','DR Kongo':'cd','Kongo DR':'cd','Demokratyczna Republika Konga':'cd',
   'Uzbekistan':'uz','Kolumbia':'co',
   'Anglia':'gb-eng','Chorwacja':'hr','Ghana':'gh','Panama':'pa'
 };
 
-// Składy grup wg Wikipedia.pl / meczyki.pl (oficjalne losowanie MŚ 2026)
+// Składy grup wg TVP Info (oficjalne losowanie MŚ 2026)
 const GROUPS = {
-  'A':['Meksyk','Republika Południowej Afryki','Korea Południowa','Czechy'],
+  'A':['Meksyk','RPA','Korea Południowa','Czechy'],
   'B':['Kanada','Bośnia i Hercegowina','Katar','Szwajcaria'],
   'C':['Brazylia','Maroko','Haiti','Szkocja'],
-  'D':['Stany Zjednoczone','Paragwaj','Australia','Turcja'],
+  'D':['USA','Paragwaj','Australia','Turcja'],
   'E':['Niemcy','Curaçao','Wybrzeże Kości Słoniowej','Ekwador'],
   'F':['Holandia','Japonia','Tunezja','Szwecja'],
-  'G':['Belgia','Iran','Egipt','Nowa Zelandia'],
-  'H':['Hiszpania','Urugwaj','Arabia Saudyjska','Wyspy Zielonego Przylądka'],
-  'I':['Francja','Senegal','Norwegia','Irak'],
-  'J':['Argentyna','Austria','Algieria','Jordania'],
-  'K':['Portugalia','Kolumbia','Uzbekistan','DR Kongo'],
-  'L':['Anglia','Chorwacja','Panama','Ghana'],
+  'G':['Belgia','Egipt','Iran','Nowa Zelandia'],
+  'H':['Hiszpania','Wyspa Zielonego Przylądka','Arabia Saudyjska','Urugwaj'],
+  'I':['Francja','Senegal','Irak','Norwegia'],
+  'J':['Argentyna','Algieria','Austria','Jordania'],
+  'K':['Portugalia','DR Konga','Uzbekistan','Kolumbia'],
+  'L':['Anglia','Chorwacja','Ghana','Panama'],
 };
 
-// Aliasy nazw drużyn (arkusz może używać skrótów)
+// Aliasy nazw drużyn (arkusz może używać skrótów zamiast pełnych nazw)
 const TEAM_ALIASES = {
-  'afrykapd':'Republika Południowej Afryki',
-  'poludniowaafrykapd':'Republika Południowej Afryki',
-  'rpa':'Republika Południowej Afryki',
+  // Afryka Pd. / Południowa Afryka → RPA
+  'afrykapd':'RPA',
+  'poludniowaafrykapd':'RPA',
+  'poludniowaafryk':'RPA',
+  'republikapoludniowejafryk':'RPA',
+  // Korea Pd. → Korea Południowa
   'koreapd':'Korea Południowa',
-  'usa':'Stany Zjednoczone',
-  'kongodr':'DR Kongo',
-  'wyspyzielonegoprzylad':'Wyspy Zielonego Przylądka',
-  'wyspyzielonegoprzyldk':'Wyspy Zielonego Przylądka',
-  'republikazielonegoprzylad':'Wyspy Zielonego Przylądka',
-  'wybrzezekoscisloniowej':'Wybrzeże Kości Słoniowej',
+  'koreapoludniow':'Korea Południowa',
+  // Stany Zjednoczone → USA
+  'stanyzjednoczone':'USA',
+  // DR Kongo / Kongo DR → DR Konga
+  'kongodr':'DR Konga',
+  'drkonkogo':'DR Konga',
+  'drkonkong':'DR Konga',
+  'demokratycznarepublikakong':'DR Konga',
+  // Wyspy Zielonego Przylądka (różne warianty) → Wyspa Zielonego Przylądka
+  'wyspyzielonegoprzylad':'Wyspa Zielonego Przylądka',
+  'wyspyzielonegoprzyldk':'Wyspa Zielonego Przylądka',
+  'republikazielonegoprzylad':'Wyspa Zielonego Przylądka',
+  'wyspazielonegoprzylad':'Wyspa Zielonego Przylądka',
+  'wyspazielonegoprzyldk':'Wyspa Zielonego Przylądka',
+  // Curaçao bez ogonka
   'curacao':'Curaçao',
+  // Bośnia warianty
+  'bosniaihercegovina':'Bośnia i Hercegowina',
+  'bosnaihercegovina':'Bośnia i Hercegowina',
 };
 
 // Szczegóły meczów: stadion, trenerzy, prawdopodobne składy (aktualizuj ręcznie)
