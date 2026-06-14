@@ -444,7 +444,52 @@ const YOUTUBE_LINKS = {
   // Gr.D — USA vs Paragwaj
   [mkey('USA','Paragwaj')]:                      'https://www.youtube.com/watch?v=L76rDHHAVtY',
   [mkey('Stany Zjednoczone','Paragwaj')]:         'https://www.youtube.com/watch?v=L76rDHHAVtY',
+  // Gr.C — Haiti vs Szkocja
+  [mkey('Haiti','Szkocja')]:                     'https://www.youtube.com/watch?v=otPY1pWOiS0',
+  // Gr.D — Australia vs Turcja
+  [mkey('Australia','Turcja')]:                  'https://www.youtube.com/watch?v=ZUMLOMWd9qM',
 };
+
+// Auto-discovery skrótów z RSS kanału TVP Sport YouTube
+const TVP_SPORT_CHANNEL_ID = 'UCalwFtq-BVcszKLZ5k2vbLw';
+// Wszystkie pary meczowe (do dopasowania tytułów RSS)
+const ALL_MATCH_PAIRS = [
+  ['Meksyk','RPA'],['Korea Południowa','Czechy'],['Kanada','Bośnia i Hercegowina'],
+  ['USA','Paragwaj'],['Katar','Szwajcaria'],['Brazylia','Maroko'],['Haiti','Szkocja'],
+  ['Australia','Turcja'],['Niemcy','Curaçao'],['Holandia','Japonia'],
+  ['Wybrzeże Kości Słoniowej','Ekwador'],['Szwecja','Tunezja'],
+  ['Hiszpania','Wyspa Zielonego Przylądka'],['Belgia','Egipt'],
+  ['Arabia Saudyjska','Urugwaj'],['Iran','Nowa Zelandia'],
+  ['Francja','Senegal'],['Irak','Norwegia'],['Argentyna','Algieria'],
+  ['Austria','Jordania'],['Portugalia','DR Konga'],['Anglia','Chorwacja'],
+  ['Ghana','Panama'],['Uzbekistan','Kolumbia'],
+];
+
+async function autoDiscoverHighlights(){
+  try{
+    const r = await fetch(`https://www.youtube.com/feeds/videos.xml?channel_id=${TVP_SPORT_CHANNEL_ID}`);
+    if(!r.ok) return;
+    const xml = new DOMParser().parseFromString(await r.text(),'application/xml');
+    const entries = [...xml.querySelectorAll('entry')];
+    let found = false;
+    entries.forEach(e=>{
+      const title = e.querySelector('title')?.textContent||'';
+      const titleN = normT(title);
+      if(!titleN.includes('skr')) return; // tylko skróty
+      const vidId = e.querySelector('videoId')?.textContent;
+      if(!vidId) return;
+      ALL_MATCH_PAIRS.forEach(([home,away])=>{
+        const k = mkey(home,away);
+        if(YOUTUBE_LINKS[k]) return; // już mamy
+        if(titleN.includes(normT(home)) && titleN.includes(normT(away))){
+          YOUTUBE_LINKS[k] = `https://www.youtube.com/watch?v=${vidId}`;
+          found = true;
+        }
+      });
+    });
+    return found;
+  }catch(e){ return false; }
+}
 
 // Normalizacja nazwy drużyny do klucza (usuwa polskie znaki, spacje, interpunkcję)
 function normT(n){
@@ -461,82 +506,85 @@ const D=(mo,dd,h,m=0)=>new Date(2026,mo-1,dd,h,m,0);
 // Prawdziwy terminarz — godziny polskiego czasu (CEST) na podstawie oficjalnego harmonogramu MŚ 2026
 const MATCH_SCHEDULE = {
   // Runda 1
-  [mkey('Meksyk','Afryka Pd.')]:         D(6,11,21),
-  [mkey('Korea Pd.','Czechy')]:           D(6,12, 4),
-  [mkey('Kanada','Bośnia i Hercegowina')]:D(6,12,21),
-  [mkey('Brazylia','Maroko')]:            D(6,13, 0),
-  [mkey('USA','Paragwaj')]:               D(6,13, 3),
-  [mkey('Haiti','Szkocja')]:              D(6,13, 3),
-  [mkey('Australia','Turcja')]:           D(6,13, 6),
-  [mkey('Katar','Szwajcaria')]:           D(6,13,21),
-  [mkey('Wybrzeże Kości Słoniowej','Ekwador')]: D(6,14, 1),
-  [mkey('Szwecja','Tunezja')]:            D(6,14, 4),
-  [mkey('Niemcy','Curaçao')]:             D(6,14,19),
-  [mkey('Niemcy','Curacao')]:             D(6,14,19),
-  [mkey('Holandia','Japonia')]:           D(6,14,22),
-  [mkey('Arabia Saudyjska','Urugwaj')]:   D(6,15, 0),
-  [mkey('Iran','Nowa Zelandia')]:         D(6,15, 3),
-  [mkey('Hiszpania','Wyspy Zielonego Przylądka')]: D(6,15,18),
-  [mkey('Irak','Norwegia')]:              D(6,16, 0),
-  [mkey('Argentyna','Algeria')]:          D(6,16, 3),
-  [mkey('Argentyna','Algieria')]:         D(6,16, 3),
-  [mkey('Austria','Jordania')]:           D(6,16, 6),
-  [mkey('Francja','Senegal')]:            D(6,16,21),
-  [mkey('Ghana','Panama')]:               D(6,17, 1),
-  [mkey('Uzbekistan','Kolumbia')]:        D(6,17, 4),
-  [mkey('Portugalia','Kongo DR')]:        D(6,17,19),
-  [mkey('Anglia','Chorwacja')]:           D(6,17,22),
+  // Zasada zero.pl: "X.06 (noc), H:00" = D(6, X+1, H) — czas wczesnoporanny to już następna data
+  [mkey('Meksyk','Afryka Pd.')]:                   D(6,11,21),
+  [mkey('Korea Pd.','Czechy')]:                     D(6,13, 4), // 12.06 noc 4:00 = 13.06
+  [mkey('Kanada','Bośnia i Hercegowina')]:           D(6,12,21),
+  [mkey('USA','Paragwaj')]:                         D(6,13, 3), // 12.06 noc 3:00 = 13.06
+  [mkey('Katar','Szwajcaria')]:                     D(6,13,21),
+  [mkey('Brazylia','Maroko')]:                      D(6,14, 0), // 13.06 noc 0:00 = 14.06
+  [mkey('Haiti','Szkocja')]:                        D(6,14, 3), // 13.06 noc 3:00 = 14.06
+  [mkey('Australia','Turcja')]:                     D(6,14, 6), // 13.06 noc 6:00 = 14.06
+  [mkey('Niemcy','Curaçao')]:                       D(6,14,19),
+  [mkey('Niemcy','Curacao')]:                       D(6,14,19),
+  [mkey('Holandia','Japonia')]:                     D(6,14,22),
+  [mkey('Wybrzeże Kości Słoniowej','Ekwador')]:     D(6,15, 1), // 14.06 noc 1:00 = 15.06
+  [mkey('Szwecja','Tunezja')]:                      D(6,15, 4), // 14.06 noc 4:00 = 15.06
+  [mkey('Hiszpania','Wyspy Zielonego Przylądka')]:  D(6,15,18),
+  [mkey('Belgia','Egipt')]:                         D(6,15,21),
+  [mkey('Arabia Saudyjska','Urugwaj')]:             D(6,16, 0), // 15.06 noc 0:00 = 16.06
+  [mkey('Iran','Nowa Zelandia')]:                   D(6,16, 3), // 15.06 noc 3:00 = 16.06
+  [mkey('Francja','Senegal')]:                      D(6,16,21),
+  [mkey('Irak','Norwegia')]:                        D(6,17, 0), // 16.06 noc 0:00 = 17.06
+  [mkey('Argentyna','Algieria')]:                   D(6,17, 3), // 16.06 noc 3:00 = 17.06
+  [mkey('Argentyna','Algeria')]:                    D(6,17, 3),
+  [mkey('Austria','Jordania')]:                     D(6,17, 6), // 16.06 noc 6:00 = 17.06
+  [mkey('Portugalia','Kongo DR')]:                  D(6,17,19),
+  [mkey('Anglia','Chorwacja')]:                     D(6,17,22),
+  [mkey('Ghana','Panama')]:                         D(6,18, 1), // 17.06 noc 1:00 = 18.06
+  [mkey('Uzbekistan','Kolumbia')]:                  D(6,18, 4), // 17.06 noc 4:00 = 18.06
   // Runda 2
-  [mkey('Kanada','Katar')]:               D(6,18, 0),
-  [mkey('Meksyk','Korea Pd.')]:           D(6,18, 3),
-  [mkey('Czechy','Afryka Pd.')]:          D(6,18,18),
-  [mkey('Szwajcaria','Bośnia i Hercegowina')]: D(6,18,21),
-  [mkey('Szkocja','Maroko')]:             D(6,19, 0),
-  [mkey('Brazylia','Haiti')]:             D(6,19, 3),
-  [mkey('Turcja','Paragwaj')]:            D(6,19, 6),
-  [mkey('USA','Australia')]:              D(6,19,21),
-  [mkey('Ekwador','Curaçao')]:            D(6,20, 2),
-  [mkey('Ekwador','Curacao')]:            D(6,20, 2),
-  [mkey('Tunezja','Japonia')]:            D(6,20, 6),
-  [mkey('Holandia','Szwecja')]:           D(6,20,19),
-  [mkey('Niemcy','Wybrzeże Kości Słoniowej')]: D(6,20,22),
-  [mkey('Urugwaj','Wyspy Zielonego Przylądka')]: D(6,21, 0),
-  [mkey('Nowa Zelandia','Egipt')]:        D(6,21, 3),
-  [mkey('Hiszpania','Arabia Saudyjska')]: D(6,21,18),
-  [mkey('Norwegia','Senegal')]:           D(6,22, 2),
-  [mkey('Jordania','Algeria')]:           D(6,22, 5),
-  [mkey('Jordania','Algieria')]:          D(6,22, 5),
-  [mkey('Argentyna','Austria')]:          D(6,22,19),
-  [mkey('Francja','Irak')]:               D(6,22,23),
-  [mkey('Panama','Chorwacja')]:           D(6,23, 1),
-  [mkey('Kolumbia','Kongo DR')]:          D(6,23, 4),
-  [mkey('Portugalia','Uzbekistan')]:      D(6,23,19),
-  [mkey('Anglia','Ghana')]:               D(6,23,22),
+  [mkey('Czechy','Afryka Pd.')]:                    D(6,18,18),
+  [mkey('Szwajcaria','Bośnia i Hercegowina')]:      D(6,18,21),
+  [mkey('Kanada','Katar')]:                         D(6,19, 0), // 18.06 noc 0:00 = 19.06
+  [mkey('Meksyk','Korea Pd.')]:                     D(6,19, 3), // 18.06 noc 3:00 = 19.06
+  [mkey('USA','Australia')]:                        D(6,19,21),
+  [mkey('Szkocja','Maroko')]:                       D(6,20, 0), // 19.06 noc 0:00 = 20.06
+  [mkey('Brazylia','Haiti')]:                       D(6,20, 3), // 19.06 noc 3:00 = 20.06
+  [mkey('Turcja','Paragwaj')]:                      D(6,20, 6), // 19.06 noc 6:00 = 20.06
+  [mkey('Holandia','Szwecja')]:                     D(6,20,19),
+  [mkey('Niemcy','Wybrzeże Kości Słoniowej')]:      D(6,20,22),
+  [mkey('Ekwador','Curaçao')]:                      D(6,21, 2), // 20.06 noc 2:00 = 21.06
+  [mkey('Ekwador','Curacao')]:                      D(6,21, 2),
+  [mkey('Tunezja','Japonia')]:                      D(6,21, 6), // 20.06 noc 6:00 = 21.06
+  [mkey('Hiszpania','Arabia Saudyjska')]:            D(6,21,18),
+  [mkey('Belgia','Iran')]:                          D(6,21,21),
+  [mkey('Urugwaj','Wyspy Zielonego Przylądka')]:    D(6,22, 0), // 21.06 noc 0:00 = 22.06
+  [mkey('Nowa Zelandia','Egipt')]:                  D(6,22, 3), // 21.06 noc 3:00 = 22.06
+  [mkey('Argentyna','Austria')]:                    D(6,22,19),
+  [mkey('Francja','Irak')]:                         D(6,22,23),
+  [mkey('Norwegia','Senegal')]:                     D(6,23, 2), // 22.06 noc 2:00 = 23.06
+  [mkey('Jordania','Algieria')]:                    D(6,23, 5), // 22.06 noc 5:00 = 23.06
+  [mkey('Jordania','Algeria')]:                     D(6,23, 5),
+  [mkey('Portugalia','Uzbekistan')]:                D(6,23,19),
+  [mkey('Anglia','Ghana')]:                         D(6,23,22),
+  [mkey('Panama','Chorwacja')]:                     D(6,24, 1), // 23.06 noc 1:00 = 24.06
+  [mkey('Kolumbia','Kongo DR')]:                    D(6,24, 4), // 23.06 noc 4:00 = 24.06
   // Runda 3
-  [mkey('Maroko','Haiti')]:               D(6,24, 0),
-  [mkey('Szkocja','Brazylia')]:           D(6,24, 0),
-  [mkey('Czechy','Meksyk')]:              D(6,24, 3),
-  [mkey('Afryka Pd.','Korea Pd.')]:       D(6,24, 3),
-  [mkey('Szwajcaria','Kanada')]:          D(6,24,21),
-  [mkey('Bośnia i Hercegowina','Katar')]: D(6,24,21),
-  [mkey('Japonia','Szwecja')]:            D(6,25, 1),
-  [mkey('Tunezja','Holandia')]:           D(6,25, 1),
-  [mkey('Turcja','USA')]:                 D(6,25, 4),
-  [mkey('Paragwaj','Australia')]:         D(6,25, 4),
-  [mkey('Ekwador','Niemcy')]:             D(6,25,22),
-  [mkey('Curaçao','Wybrzeże Kości Słoniowej')]: D(6,25,22),
-  [mkey('Curacao','Wybrzeże Kości Słoniowej')]: D(6,25,22),
-  [mkey('Wyspy Zielonego Przylądka','Arabia Saudyjska')]: D(6,26, 2),
-  [mkey('Urugwaj','Hiszpania')]:          D(6,26, 2),
-  [mkey('Senegal','Irak')]:               D(6,26,21),
-  [mkey('Norwegia','Francja')]:           D(6,26,21),
-  [mkey('Panama','Anglia')]:              D(6,27,23),
-  [mkey('Chorwacja','Ghana')]:            D(6,27,23),
-  [mkey('Kolumbia','Portugalia')]:        D(6,27, 1,30),
-  [mkey('Kongo DR','Uzbekistan')]:        D(6,27, 1,30),
-  [mkey('Algeria','Austria')]:            D(6,27, 4),
-  [mkey('Algieria','Austria')]:           D(6,27, 4),
-  [mkey('Jordania','Argentyna')]:         D(6,27, 4),
+  [mkey('Szwajcaria','Kanada')]:                    D(6,24,21),
+  [mkey('Bośnia i Hercegowina','Katar')]:           D(6,24,21),
+  [mkey('Maroko','Haiti')]:                         D(6,25, 0), // 24.06 noc 0:00 = 25.06
+  [mkey('Szkocja','Brazylia')]:                     D(6,25, 0), // 24.06 noc 0:00 = 25.06
+  [mkey('Czechy','Meksyk')]:                        D(6,25, 3), // 24.06 noc 3:00 = 25.06
+  [mkey('Afryka Pd.','Korea Pd.')]:                 D(6,25, 3), // 24.06 noc 3:00 = 25.06
+  [mkey('Ekwador','Niemcy')]:                       D(6,25,22),
+  [mkey('Curaçao','Wybrzeże Kości Słoniowej')]:     D(6,25,22),
+  [mkey('Curacao','Wybrzeże Kości Słoniowej')]:     D(6,25,22),
+  [mkey('Japonia','Szwecja')]:                      D(6,26, 1), // 25.06 noc 1:00 = 26.06
+  [mkey('Tunezja','Holandia')]:                     D(6,26, 1), // 25.06 noc 1:00 = 26.06
+  [mkey('Turcja','USA')]:                           D(6,26, 4), // 25.06 noc 4:00 = 26.06
+  [mkey('Paragwaj','Australia')]:                   D(6,26, 4), // 25.06 noc 4:00 = 26.06
+  [mkey('Senegal','Irak')]:                         D(6,26,21),
+  [mkey('Norwegia','Francja')]:                     D(6,26,21),
+  [mkey('Wyspy Zielonego Przylądka','Arabia Saudyjska')]: D(6,27, 2), // 26.06 noc 2:00 = 27.06
+  [mkey('Urugwaj','Hiszpania')]:                    D(6,27, 2), // 26.06 noc 2:00 = 27.06
+  [mkey('Panama','Anglia')]:                        D(6,27,23),
+  [mkey('Chorwacja','Ghana')]:                      D(6,27,23),
+  [mkey('Kolumbia','Portugalia')]:                  D(6,28, 1,30), // 27.06 noc 1:30 = 28.06
+  [mkey('Kongo DR','Uzbekistan')]:                  D(6,28, 1,30), // 27.06 noc 1:30 = 28.06
+  [mkey('Algieria','Austria')]:                     D(6,28, 4), // 27.06 noc 4:00 = 28.06
+  [mkey('Algeria','Austria')]:                      D(6,28, 4),
+  [mkey('Jordania','Argentyna')]:                   D(6,28, 4), // 27.06 noc 4:00 = 28.06
 };
 
 function getScheduledDt(home, away){
@@ -639,7 +687,7 @@ function processData(rows){
     const parts = col1.split(/\s*-\s*/);
     if(parts.length<2) continue;
 
-    const realScore = parseScore(r[13]?r[13].replace(/"/g,''):'');
+    const sheetScore = parseScore(r[13]?r[13].replace(/"/g,''):'');
     const preds = {};
     PLAYERS.forEach((p,idx)=>{
       const raw = r[idx+2]?r[idx+2].replace(/"/g,'').trim():'';
@@ -650,11 +698,22 @@ function processData(rows){
     const away = parts.slice(1).join(' - ').trim();
     const dt = getScheduledDt(home, away);
     const time = formatDt(dt);
+    // Wynik z Google Sheets ma priorytet; jeśli brak, użyj ESPN cache (dla zakończonych meczów)
+    const finished = dt < new Date(Date.now() - LIVE_DURATION_MS);
+    let real = sheetScore;
+    if(!real && finished){
+      const espn = ESPN_SCORES[mkey(home,away)];
+      if(espn){
+        // Sprawdź czy kolejność home/away zgadza się z ESPN; jeśli nie — zamień
+        const sameOrder = normT(home) === normT(espn.h);
+        real = sameOrder ? espn.s : [espn.s[1], espn.s[0]];
+      }
+    }
 
     matches.push({
       date:currentDate, group:col0,
       home, away,
-      real:realScore, preds, time, dt
+      real, preds, time, dt
     });
   }
   return matches;
@@ -765,6 +824,64 @@ const ESPN_NAMES = {
   'DR Konga':'Congo','Uzbekistan':'Uzbekistan','Kolumbia':'Colombia',
   'Anglia':'England','Chorwacja':'Croatia','Ghana':'Ghana','Panama':'Panama'
 };
+// Odwrócona mapa: angielska nazwa ESPN → polska nazwa
+const ESPN_NAMES_REV = Object.fromEntries(Object.entries(ESPN_NAMES).map(([pl,en])=>[en.toLowerCase(),pl]));
+// Dodatkowe aliasy ESPN (różne pisownie)
+ESPN_NAMES_REV['türkiye'] = 'Turcja';
+ESPN_NAMES_REV['republic of ireland'] = 'Irlandia';
+ESPN_NAMES_REV['cape verde'] = 'Wyspa Zielonego Przylądka';
+ESPN_NAMES_REV['ivory coast'] = 'Wybrzeże Kości Słoniowej';
+ESPN_NAMES_REV['dr congo'] = 'DR Konga';
+ESPN_NAMES_REV['bosnia and herzegovina'] = 'Bośnia i Hercegowina';
+
+// Cache wyników zakończonych meczów pobranych z ESPN (wypełnia braki z Google Sheets)
+const ESPN_SCORES = {};
+
+async function fetchESPNScoresByDate(dateStr){ // dateStr = 'YYYYMMDD'
+  try{
+    const r = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/FIFA.WORLD/scoreboard?dates=${dateStr}`);
+    if(!r.ok) return;
+    const data = await r.json();
+    (data.events||[]).forEach(e=>{
+      const comp = e.competitions?.[0];
+      if(!comp) return;
+      if(!comp.status?.type?.completed) return; // tylko zakończone
+      const competitors = comp.competitors||[];
+      const homeC = competitors.find(c=>c.homeAway==='home');
+      const awayC = competitors.find(c=>c.homeAway==='away');
+      if(!homeC||!awayC) return;
+      const hEn = (homeC.team?.displayName||'').toLowerCase();
+      const aEn = (awayC.team?.displayName||'').toLowerCase();
+      const hPl = ESPN_NAMES_REV[hEn] || Object.keys(ESPN_NAMES).find(p=>ESPN_NAMES[p].toLowerCase().includes(hEn.split(' ')[0])) || hEn;
+      const aPl = ESPN_NAMES_REV[aEn] || Object.keys(ESPN_NAMES).find(p=>ESPN_NAMES[p].toLowerCase().includes(aEn.split(' ')[0])) || aEn;
+      const k = mkey(hPl, aPl);
+      if(!ESPN_SCORES[k]){
+        // Przechowujemy też nazwy drużyn żeby potem poprawnie przypisać wynik home/away
+        ESPN_SCORES[k] = { h: hPl, a: aPl, s: [parseInt(homeC.score||0), parseInt(awayC.score||0)] };
+      }
+    });
+  }catch(e){}
+}
+
+function toESPNDate(dt){
+  return `${dt.getFullYear()}${String(dt.getMonth()+1).padStart(2,'0')}${String(dt.getDate()).padStart(2,'0')}`;
+}
+
+async function fetchAllCompletedScores(){
+  const now = new Date();
+  const dates = new Set();
+  Object.values(MATCH_SCHEDULE).forEach(dt=>{
+    if(dt < now){
+      dates.add(toESPNDate(dt));
+      // Mecze nocne (0–9 CEST) to wieczór poprzedniego dnia w USA — dodaj też poprzedni dzień
+      if(dt.getHours() < 10){
+        const prev = new Date(dt.getTime() - 86400000);
+        dates.add(toESPNDate(prev));
+      }
+    }
+  });
+  if(dates.size) await Promise.all([...dates].map(d=>fetchESPNScoresByDate(d)));
+}
 
 async function fetchLiveScoreESPN(home, away){
   try{
@@ -1079,16 +1196,22 @@ function renderGroups(matches){
   });
 }
 
+function renderAll(matches){
+  renderStandings(matches);
+  renderLastMatch(matches);
+  renderNextMatch(matches);
+  renderScroller(matches);
+  renderTypy(matches);
+  renderGroups(matches);
+}
+
 async function init(){
   try{
-    const rows = await fetchData();
+    const [rows] = await Promise.all([fetchData(), fetchAllCompletedScores()]);
     const matches = processData(rows);
-    renderStandings(matches);
-    renderLastMatch(matches);
-    renderNextMatch(matches);
-    renderScroller(matches);
-    renderTypy(matches);
-    renderGroups(matches);
+    renderAll(matches);
+    // Auto-discovery skrótów YouTube — jeśli znajdzie nowe, odśwież sekcję ostatniego meczu
+    autoDiscoverHighlights().then(found=>{ if(found) renderLastMatch(matches); });
   }catch(e){
     console.error(e);
     document.getElementById('standings-container').innerHTML='<div class="loading">Błąd ładowania danych</div>';
