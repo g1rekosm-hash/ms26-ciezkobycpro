@@ -314,7 +314,7 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 
 <script>
 const SHEET_ID = '1nDSbtEX92ieS00DZ0IkCfYUXw5G1Dxc95KbdbL1VIrk';
-const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA','SALAS'];
+const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA','SALAS','PADAWER'];
 const LIVE_DURATION_MS = 115 * 60 * 1000; // 115 minut
 
 const FLAGS = {
@@ -390,6 +390,8 @@ const TEAM_ALIASES = {
   // Bośnia warianty
   'bosniaihercegovina':'Bośnia i Hercegowina',
   'bosnaihercegovina':'Bośnia i Hercegowina',
+  // Literówki z arkusza
+  'hipszania':'Hiszpania',
 };
 
 // Szczegóły meczów: stadion, trenerzy, prawdopodobne składy (aktualizuj ręcznie)
@@ -521,6 +523,7 @@ const MATCH_SCHEDULE = {
   [mkey('Wybrzeże Kości Słoniowej','Ekwador')]:     D(6,15, 1), // 14.06 noc 1:00 = 15.06
   [mkey('Szwecja','Tunezja')]:                      D(6,15, 4), // 14.06 noc 4:00 = 15.06
   [mkey('Hiszpania','Wyspy Zielonego Przylądka')]:  D(6,15,18),
+  [mkey('Hipszania','Wyspy Zielonego Przylądka')]:  D(6,15,18), // literówka w arkuszu
   [mkey('Belgia','Egipt')]:                         D(6,15,21),
   [mkey('Arabia Saudyjska','Urugwaj')]:             D(6,16, 0), // 15.06 noc 0:00 = 16.06
   [mkey('Iran','Nowa Zelandia')]:                   D(6,16, 3), // 15.06 noc 3:00 = 16.06
@@ -687,7 +690,7 @@ function processData(rows){
     const parts = col1.split(/\s*-\s*/);
     if(parts.length<2) continue;
 
-    const sheetScore = parseScore(r[13]?r[13].replace(/"/g,''):'');
+    const sheetScore = parseScore(r[14]?r[14].replace(/"/g,''):'');
     const preds = {};
     PLAYERS.forEach((p,idx)=>{
       const raw = r[idx+2]?r[idx+2].replace(/"/g,'').trim():'';
