@@ -845,7 +845,9 @@ async function fetchESPNScoresByDate(dateStr){ // dateStr = 'YYYYMMDD'
     (data.events||[]).forEach(e=>{
       const comp = e.competitions?.[0];
       if(!comp) return;
-      if(!comp.status?.type?.completed) return; // tylko zakończone
+      const st = comp.status?.type;
+      const isCompleted = st?.completed === true || st?.state === 'post' || st?.name === 'STATUS_FINAL';
+      if(!isCompleted) return; // tylko zakończone
       const competitors = comp.competitors||[];
       const homeC = competitors.find(c=>c.homeAway==='home');
       const awayC = competitors.find(c=>c.homeAway==='away');
