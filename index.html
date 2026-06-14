@@ -908,9 +908,25 @@ async function fetchLiveScoreESPN(home, away){
   }catch(e){ return null; }
 }
 
+// Cache wyników live — przeżywa re-rendery co 60s
+const LIVE_SCORE_CACHE = {};
+let _liveUpdateInterval = null;
+
+async function doLiveScoreUpdate(home, away){
+  const score = await fetchLiveScoreESPN(home, away);
+  if(!score) return;
+  LIVE_SCORE_CACHE[mkey(home,away)] = score;
+  const el = document.getElementById('live-score-num');
+  if(el) el.textContent = `${score[0]}:${score[1]}`;
+}
+
 function renderLiveMatch(match){
-  const score = match.real ? `${match.real[0]}:${match.real[1]}` : '0:0';
-  const tvpUrl = TVP_LINKS[mkey(match.home,match.away)] || null;
+  const k = mkey(match.home, match.away);
+  // Użyj cache jeśli mamy, potem wynik z Sheets, potem 0:0
+  const cached = LIVE_SCORE_CACHE[k];
+  const score = cached ? `${cached[0]}:${cached[1]}`
+               : match.real ? `${match.real[0]}:${match.real[1]}` : '0:0';
+  const tvpUrl = TVP_LINKS[k] || null;
   const cont = document.getElementById('next-match-container');
   cont.innerHTML = `
   <div class="live-card">
@@ -921,7 +937,7 @@ function renderLiveMatch(match){
         <span class="next-name">${match.home}</span>
       </div>
       <div class="live-score-box">
-        <div class="live-score-num">${score}</div>
+        <div id="live-score-num" class="live-score-num">${score}</div>
         <div class="live-score-label">LIVE</div>
       </div>
       <div class="next-team">
@@ -932,12 +948,11 @@ function renderLiveMatch(match){
     ${tvpLinkHtml(tvpUrl)}
   </div>`;
   document.getElementById('live-header-dot').classList.add('active');
-  // Pobierz wynik live z ESPN (async, podmienia po załadowaniu)
-  fetchLiveScoreESPN(match.home, match.away).then(apiScore=>{
-    if(!apiScore) return;
-    const el = document.querySelector('.live-score-num');
-    if(el) el.textContent = `${apiScore[0]}:${apiScore[1]}`;
-  });
+  // Natychmiastowa aktualizacja
+  doLiveScoreUpdate(match.home, match.away);
+  // Dedykowany interval co 15s — niezależny od głównego init() co 60s
+  if(_liveUpdateInterval) clearInterval(_liveUpdateInterval);
+  _liveUpdateInterval = setInterval(()=>doLiveScoreUpdate(match.home,match.away), 15000);
 }
 
 function buildLineupHtml(players, formation){
@@ -987,6 +1002,7 @@ function renderNextMatch(matches){
   }
 
   document.getElementById('live-header-dot').classList.remove('active');
+  if(_liveUpdateInterval){ clearInterval(_liveUpdateInterval); _liveUpdateInterval=null; }
 
   const upcoming = matches.filter(m=>!m.real&&m.dt>now);
   if(!upcoming.length){
