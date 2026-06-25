@@ -320,11 +320,11 @@ const LIVE_DURATION_MS = 115 * 60 * 1000; // 115 minut
 const FLAGS = {
   'Meksyk':'mx',
   'RPA':'za','Afryka Pd.':'za','Republika Południowej Afryki':'za','Południowa Afryka':'za',
-  'Korea Południowa':'kr','Korea Pd.':'kr',
+  'Korea Południowa':'kr','Korea Pd.':'kr','Korea Płd.':'kr',
   'Czechy':'cz',
   'Kanada':'ca',
   'Bośnia i Hercegowina':'ba','Bosnia i Hercegowina':'ba','Bośnia':'ba',
-  'Katar':'qa','Szwajcaria':'ch',
+  'Katar':'qa','Szwajcaria':'ch','Szwajrcaria':'ch',
   'USA':'us','Stany Zjednoczone':'us',
   'Paragwaj':'py',
   'Brazylia':'br','Maroko':'ma','Haiti':'ht','Szkocja':'gb-sct',
@@ -372,6 +372,7 @@ const TEAM_ALIASES = {
   // Korea Pd. → Korea Południowa
   'koreapd':'Korea Południowa',
   'koreapoludniow':'Korea Południowa',
+  'koreapld':'Korea Południowa',
   // Stany Zjednoczone → USA
   'stanyzjednoczone':'USA',
   // DR Kongo / Kongo DR → DR Konga
@@ -392,6 +393,7 @@ const TEAM_ALIASES = {
   'bosnaihercegovina':'Bośnia i Hercegowina',
   // Literówki z arkusza
   'hipszania':'Hiszpania',
+  'szwajrcaria':'Szwajcaria',
 };
 
 // Szczegóły meczów: stadion, trenerzy, prawdopodobne składy (aktualizuj ręcznie)
@@ -565,11 +567,13 @@ const MATCH_SCHEDULE = {
   [mkey('Kolumbia','Kongo DR')]:                    D(6,24, 4), // 23.06 noc 4:00 = 24.06
   // Runda 3
   [mkey('Szwajcaria','Kanada')]:                    D(6,24,21),
+  [mkey('Szwajrcaria','Kanada')]:                   D(6,24,21), // literówka w arkuszu
   [mkey('Bośnia i Hercegowina','Katar')]:           D(6,24,21),
   [mkey('Maroko','Haiti')]:                         D(6,25, 0), // 24.06 noc 0:00 = 25.06
   [mkey('Szkocja','Brazylia')]:                     D(6,25, 0), // 24.06 noc 0:00 = 25.06
   [mkey('Czechy','Meksyk')]:                        D(6,25, 3), // 24.06 noc 3:00 = 25.06
   [mkey('Afryka Pd.','Korea Pd.')]:                 D(6,25, 3), // 24.06 noc 3:00 = 25.06
+  [mkey('RPA','Korea Płd.')]:                       D(6,25, 3), // wariant z arkusza: "RPA - Korea Płd."
   [mkey('Ekwador','Niemcy')]:                       D(6,25,22),
   [mkey('Curaçao','Wybrzeże Kości Słoniowej')]:     D(6,25,22),
   [mkey('Curacao','Wybrzeże Kości Słoniowej')]:     D(6,25,22),
@@ -912,47 +916,54 @@ async function fetchLiveScoreESPN(home, away){
 const LIVE_SCORE_CACHE = {};
 let _liveUpdateInterval = null;
 
-async function doLiveScoreUpdate(home, away){
+async function doLiveScoreUpdate(home, away, elId='live-score-num'){
   const score = await fetchLiveScoreESPN(home, away);
   if(!score) return;
   LIVE_SCORE_CACHE[mkey(home,away)] = score;
-  const el = document.getElementById('live-score-num');
+  const el = document.getElementById(elId);
   if(el) el.textContent = `${score[0]}:${score[1]}`;
 }
 
-function renderLiveMatch(match){
-  const k = mkey(match.home, match.away);
-  // Użyj cache jeśli mamy, potem wynik z Sheets, potem 0:0
-  const cached = LIVE_SCORE_CACHE[k];
-  const score = cached ? `${cached[0]}:${cached[1]}`
-               : match.real ? `${match.real[0]}:${match.real[1]}` : '0:0';
-  const tvpUrl = TVP_LINKS[k] || null;
+function renderLiveMatches(liveMatches){
   const cont = document.getElementById('next-match-container');
-  cont.innerHTML = `
-  <div class="live-card">
-    <div><span class="live-badge"><span class="live-dot"></span> TRWA MECZ</span></div>
-    <div class="live-teams">
-      <div class="next-team">
-        <span style="font-size:3rem;display:block;margin-bottom:8px">${getFlag(match.home,'3rem')}</span>
-        <span class="next-name">${match.home}</span>
+  // Gdy gra kilka meczów naraz — nagłówek + osobna rubryka (karta) z wynikiem dla każdego
+  const multi = liveMatches.length > 1;
+  const header = multi
+    ? `<div class="next-label" style="color:var(--live);text-align:center;margin-bottom:10px;letter-spacing:2px">⚡ ${liveMatches.length} MECZE RÓWNOLEGLE</div>`
+    : '';
+  cont.innerHTML = header + liveMatches.map((match,i)=>{
+    const k = mkey(match.home, match.away);
+    // Użyj cache jeśli mamy, potem wynik z Sheets, potem 0:0
+    const cached = LIVE_SCORE_CACHE[k];
+    const score = cached ? `${cached[0]}:${cached[1]}`
+                 : match.real ? `${match.real[0]}:${match.real[1]}` : '0:0';
+    const tvpUrl = TVP_LINKS[k] || null;
+    return `
+    <div class="live-card">
+      <div><span class="live-badge"><span class="live-dot"></span> TRWA MECZ</span></div>
+      <div class="live-teams">
+        <div class="next-team">
+          <span style="font-size:3rem;display:block;margin-bottom:8px">${getFlag(match.home,'3rem')}</span>
+          <span class="next-name">${match.home}</span>
+        </div>
+        <div class="live-score-box">
+          <div id="live-score-${i}" class="live-score-num">${score}</div>
+          <div class="live-score-label">LIVE</div>
+        </div>
+        <div class="next-team">
+          <span style="font-size:3rem;display:block;margin-bottom:8px">${getFlag(match.away,'3rem')}</span>
+          <span class="next-name">${match.away}</span>
+        </div>
       </div>
-      <div class="live-score-box">
-        <div id="live-score-num" class="live-score-num">${score}</div>
-        <div class="live-score-label">LIVE</div>
-      </div>
-      <div class="next-team">
-        <span style="font-size:3rem;display:block;margin-bottom:8px">${getFlag(match.away,'3rem')}</span>
-        <span class="next-name">${match.away}</span>
-      </div>
-    </div>
-    ${tvpLinkHtml(tvpUrl)}
-  </div>`;
+      ${tvpLinkHtml(tvpUrl)}
+    </div>`;
+  }).join('');
   document.getElementById('live-header-dot').classList.add('active');
-  // Natychmiastowa aktualizacja
-  doLiveScoreUpdate(match.home, match.away);
-  // Dedykowany interval co 15s — niezależny od głównego init() co 60s
+  // Aktualizacja wyników wszystkich równoległych meczów — natychmiast + co 15s
+  const updateAll = ()=> liveMatches.forEach((m,i)=>doLiveScoreUpdate(m.home,m.away,`live-score-${i}`));
+  updateAll();
   if(_liveUpdateInterval) clearInterval(_liveUpdateInterval);
-  _liveUpdateInterval = setInterval(()=>doLiveScoreUpdate(match.home,match.away), 15000);
+  _liveUpdateInterval = setInterval(updateAll, 15000);
 }
 
 function buildLineupHtml(players, formation){
@@ -994,9 +1005,9 @@ function buildMatchDetailsHtml(home, away){
 
 function renderNextMatch(matches){
   const now = new Date();
-  const liveMatch = matches.find(m => isLive(m));
-  if(liveMatch){
-    renderLiveMatch(liveMatch);
+  const liveMatches = matches.filter(m => isLive(m));
+  if(liveMatches.length){
+    renderLiveMatches(liveMatches);
     if(countdownInterval){ clearInterval(countdownInterval); countdownInterval=null; }
     return;
   }
@@ -1109,6 +1120,9 @@ function renderScroller(matches){
       scoreHtml=`<div style="text-align:right;min-width:48px"><span class="scroll-score live-score">${s}</span><span class="scroll-live-badge">LIVE</span></div>`;
     } else if(played){
       scoreHtml=`<span class="scroll-score">${m.real[0]}:${m.real[1]}</span>`;
+    } else if(m.dt < now){
+      // Mecz już się odbył, ale brak wyniku w arkuszu — sygnalizuj oczekiwanie
+      scoreHtml=`<span class="scroll-score upcoming" style="color:var(--gold)" title="Mecz rozegrany — czeka na wynik">?:?</span>`;
     } else {
       scoreHtml=`<span class="scroll-score upcoming">${m.time}</span>`;
     }
