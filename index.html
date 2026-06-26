@@ -229,6 +229,37 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 .g-flag{font-size:0.85rem;border-radius:2px;flex-shrink:0}
 .g-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:130px;font-weight:500}
 
+/* DRABINKA PUCHAROWA */
+.bracket-section{padding:16px 24px 24px;border-top:1px solid var(--border);background:var(--dark2);position:relative;z-index:1}
+.bracket-live-tag{font-family:'Oswald',sans-serif;font-size:0.58rem;letter-spacing:1px;background:linear-gradient(90deg,#cc0000,#ff2222);color:#fff;padding:2px 8px;border-radius:10px;box-shadow:0 0 10px #ff222244}
+.bracket-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px}
+.bracket-scroll::-webkit-scrollbar{height:5px}
+.bracket-scroll::-webkit-scrollbar-track{background:var(--dark)}
+.bracket-scroll::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+.bracket-col{min-width:190px;flex:1 0 190px;display:flex;flex-direction:column}
+.bracket-round-label{font-family:'Oswald',sans-serif;font-size:0.7rem;letter-spacing:2px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:10px}
+.bracket-col-inner{display:flex;flex-direction:column;justify-content:space-around;gap:8px;flex:1}
+.bm-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 2px 10px #00000022}
+.bm-card.live{border-color:#ff333366;box-shadow:0 0 18px #ff222222}
+.bm-row{display:flex;align-items:center;gap:7px;padding:6px 9px}
+.bm-row+.bm-row{border-top:1px solid var(--border)}
+.bm-row.ph{opacity:0.7}
+.bm-row.win{background:linear-gradient(90deg,#1a1500,transparent)}
+.bm-row.win .bm-name{color:var(--gold);font-weight:700}
+.bm-row.win .bm-score{color:var(--gold)}
+.bm-flag{flex-shrink:0;display:flex;align-items:center}
+.bm-name{flex:1;font-size:0.72rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bm-score{font-family:'Oswald',sans-serif;font-size:0.9rem;font-weight:700;color:var(--text);min-width:14px;text-align:right}
+.bm-meta{padding:3px 9px;font-size:0.56rem;color:var(--muted);text-align:center;border-top:1px solid var(--border);background:var(--dark2);letter-spacing:0.5px}
+.bm-card.live .bm-meta{color:var(--live);font-weight:600}
+/* tabele grup — oznaczenie awansu */
+.group-table tr.third-q td{background:linear-gradient(90deg,#1a1400,transparent)}
+.group-table tr.qualified td:first-child{box-shadow:inset 3px 0 0 var(--green)}
+.group-table tr.third-q td:first-child{box-shadow:inset 3px 0 0 var(--gold)}
+.groups-legend{font-size:0.62rem;color:var(--muted);margin-top:10px;display:flex;gap:16px;flex-wrap:wrap}
+.groups-legend span{display:inline-flex;align-items:center;gap:5px}
+.lg-dot{width:9px;height:9px;border-radius:2px;display:inline-block}
+
 /* MOBILE */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr;grid-template-rows:auto}
@@ -244,6 +275,7 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
   .next-flag,.live-flag{font-size:2rem!important}
   .logo-text{font-size:1rem}
   .groups-grid{grid-template-columns:repeat(2,1fr)}
+  .bracket-col{min-width:158px;flex-basis:158px}
 }
 </style>
 </head>
@@ -306,15 +338,31 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 
 </div>
 
+<!-- DRABINKA PUCHAROWA — online z ESPN -->
+<div class="bracket-section">
+  <div class="section-label" style="margin-bottom:10px;display:flex;align-items:center;gap:8px">
+    🏆 Drabinka pucharowa <span class="bracket-live-tag">● ONLINE</span>
+  </div>
+  <div class="bracket-scroll" id="bracket-scroll"><div class="loading">Ładowanie drabinki…</div></div>
+</div>
+
 <!-- GRUPY — pełna szerokość -->
 <div class="groups-section">
-  <div class="section-label" style="margin-bottom:10px">Tabele grup</div>
+  <div class="section-label" style="margin-bottom:10px">Tabele grup — oficjalne wyniki (ESPN)</div>
   <div class="groups-grid" id="groups-grid"><div class="loading">Ładowanie...</div></div>
+  <div class="groups-legend">
+    <span><span class="lg-dot" style="background:var(--green)"></span> awans (1–2 miejsce)</span>
+    <span><span class="lg-dot" style="background:var(--gold)"></span> 8 najlepszych z 3. miejsc</span>
+  </div>
 </div>
 
 <script>
 const SHEET_ID = '1nDSbtEX92ieS00DZ0IkCfYUXw5G1Dxc95KbdbL1VIrk';
+// UWAGA: kolejność = kolumny w arkuszu (C–N). NIE zmieniać kolejności ani nie usuwać —
+// to mapuje pozycje kolumn. Gracze wykluczeni z ligi idą do EXCLUDED_PLAYERS.
 const PLAYERS = ['PLUMPEK','CRACK','KROKU','B-REAL','ELEKTRYCZNY','CLINIC','DOPADACZ','QNIK','IMICIUS','VEGETA','SALAS','PADAWER'];
+const EXCLUDED_PLAYERS = ['ELEKTRYCZNY']; // gracze usunięci z ligi (kolumna zostaje, ale nie liczą się i nie są pokazywani)
+const ACTIVE_PLAYERS = PLAYERS.filter(p => !EXCLUDED_PLAYERS.includes(p));
 const LIVE_DURATION_MS = 115 * 60 * 1000; // 115 minut
 
 const FLAGS = {
@@ -335,7 +383,7 @@ const FLAGS = {
   'Ekwador':'ec',
   'Holandia':'nl','Japonia':'jp','Tunezja':'tn','Szwecja':'se',
   'Hiszpania':'es','Hipszania':'es',
-  'Wyspa Zielonego Przylądka':'cv','Wyspy Zielonego Przylądka':'cv','Republika Zielonego Przylądka':'cv',
+  'Wyspa Zielonego Przylądka':'cv','Wyspy Zielonego Przylądka':'cv','Republika Zielonego Przylądka':'cv','Republika Zielonego Przyládka':'cv',
   'Arabia Saudyjska':'sa','Urugwaj':'uy',
   'Belgia':'be','Egipt':'eg','Iran':'ir','Nowa Zelandia':'nz',
   'Francja':'fr','Senegal':'sn','Irak':'iq','Norwegia':'no',
@@ -592,6 +640,13 @@ const MATCH_SCHEDULE = {
   [mkey('Algieria','Austria')]:                     D(6,28, 4), // 27.06 noc 4:00 = 28.06
   [mkey('Algeria','Austria')]:                      D(6,28, 4),
   [mkey('Jordania','Argentyna')]:                   D(6,28, 4), // 27.06 noc 4:00 = 28.06
+  // Brakujące mecze Gr. G — runda 3 (nie było ich w terminarzu)
+  [mkey('Egipt','Iran')]:                           D(6,27, 5), // 27.06 5:00 CEST
+  [mkey('Nowa Zelandia','Belgia')]:                 D(6,27, 5), // 27.06 5:00 CEST
+  // Warianty pisowni z arkusza
+  [mkey('Republika Zielonego Przylądka','Arabia Saudyjska')]: D(6,27, 2),
+  [mkey('Kolumbia','DR Konga')]:                    D(6,24, 4),
+  [mkey('DR Konga','Uzbekistan')]:                  D(6,28, 1,30),
 };
 
 function getScheduledDt(home, away){
@@ -728,7 +783,7 @@ function processData(rows){
 
 function renderStandings(matches){
   const played = matches.filter(m=>m.real);
-  const data = PLAYERS.map(p=>{
+  const data = ACTIVE_PLAYERS.map(p=>{
     let pts=0,exact=0,correct=0;
     played.forEach(m=>{
       const pp = calcPts(m.preds[p],m.real[0],m.real[1]);
@@ -1151,7 +1206,7 @@ function renderTypy(matches){
   const cont = document.getElementById('typy-container');
   cont.innerHTML = '';
   played.forEach(m=>{
-    const predsHtml = PLAYERS.map(p=>{
+    const predsHtml = ACTIVE_PLAYERS.map(p=>{
       const pred = m.preds[p];
       const cls = predClass(pred,m.real[0],m.real[1]);
       const pts = calcPts(pred,m.real[0],m.real[1]);
@@ -1194,7 +1249,7 @@ function renderGroups(matches){
   matches.forEach(m=>{
     const g = m.group;
     if(!g||g.length>1) return;
-    if(!groups[g]) groups[g]={};
+    if(!groups[g]) return; // nieznana grupa — pomiń
     const home = resolveTeam(g, m.home);
     const away = resolveTeam(g, m.away);
     if(!home||!away) return; // Pomiń jeśli drużyna nie jest w tej grupie
@@ -1209,26 +1264,167 @@ function renderGroups(matches){
     }
   });
 
+  // Kryteria FIFA: pkt → różnica bramek → bramki strzelone → nazwa
+  const cmp = (a,b)=> b.pts-a.pts || ((b.gf-b.ga)-(a.gf-a.ga)) || (b.gf-a.gf) || a.name.localeCompare(b.name);
+
+  // Posortuj każdą grupę i zbierz drużyny z 3. miejsca (ranking najlepszych trzecich)
+  const sorted = {}; const thirds = [];
+  Object.keys(groups).forEach(g=>{
+    const arr = Object.entries(groups[g]).map(([name,s])=>({name,...s})).sort(cmp);
+    sorted[g] = arr;
+    if(arr[2]) thirds.push({g, ...arr[2]});
+  });
+  thirds.sort(cmp);
+  const bestThirds = new Set(thirds.slice(0,8).map(t=>t.g+'|'+t.name));
+
   const grid = document.getElementById('groups-grid');
   grid.innerHTML = '';
-  Object.keys(groups).sort().forEach(g=>{
-    const teams = Object.entries(groups[g])
-      .sort((a,b)=>b[1].pts-a[1].pts||(b[1].gf-b[1].ga)-(a[1].gf-a[1].ga));
+  Object.keys(sorted).sort().forEach(g=>{
+    const rows = sorted[g].map((s,i)=>{
+      const gd = s.gf - s.ga; const gdStr = (gd>0?'+':'') + gd;
+      const cls = i<2 ? 'qualified' : (bestThirds.has(g+'|'+s.name) ? 'third-q' : '');
+      return `<tr class="${cls}">
+            <td><span class="g-flag">${getFlag(s.name,'0.85rem')}</span><span class="g-name">${s.name}</span></td>
+            <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
+            <td>${gdStr}</td><td class="g-pts">${s.pts}</td>
+          </tr>`;
+    }).join('');
     grid.innerHTML+=`
     <div class="group-card">
       <div class="group-header">GRUPA ${g}</div>
       <table class="group-table">
-        <thead><tr><th>Drużyna</th><th>M</th><th>W</th><th>R</th><th>P</th><th>Pkt</th></tr></thead>
-        <tbody>${teams.map(([name,s])=>`
-          <tr>
-            <td><span class="g-flag">${getFlag(name,'0.85rem')}</span><span class="g-name">${name}</span></td>
-            <td>${s.p}</td><td>${s.w}</td><td>${s.d}</td><td>${s.l}</td>
-            <td class="g-pts">${s.pts}</td>
-          </tr>`).join('')}
-        </tbody>
+        <thead><tr><th>Drużyna</th><th>M</th><th>W</th><th>R</th><th>P</th><th>+/-</th><th>Pkt</th></tr></thead>
+        <tbody>${rows}</tbody>
       </table>
     </div>`;
   });
+}
+
+// ===== DRABINKA PUCHAROWA + OFICJALNE TABELE (dane live z ESPN) =====
+// Kod 3-literowy ESPN → polska nazwa (zgodna z GROUPS/FLAGS)
+const ESPN_ABBR = {
+  ALG:'Algieria',ARG:'Argentyna',AUS:'Australia',AUT:'Austria',BEL:'Belgia',
+  BIH:'Bośnia i Hercegowina',BRA:'Brazylia',CAN:'Kanada',CIV:'Wybrzeże Kości Słoniowej',
+  COD:'DR Konga',COL:'Kolumbia',CPV:'Wyspa Zielonego Przylądka',CRO:'Chorwacja',
+  CUW:'Curaçao',CZE:'Czechy',ECU:'Ekwador',EGY:'Egipt',ENG:'Anglia',ESP:'Hiszpania',
+  FRA:'Francja',GER:'Niemcy',GHA:'Ghana',HAI:'Haiti',IRN:'Iran',IRQ:'Irak',JOR:'Jordania',
+  JPN:'Japonia',KOR:'Korea Południowa',KSA:'Arabia Saudyjska',MAR:'Maroko',MEX:'Meksyk',
+  NED:'Holandia',NOR:'Norwegia',NZL:'Nowa Zelandia',PAN:'Panama',PAR:'Paragwaj',
+  POR:'Portugalia',QAT:'Katar',RSA:'RPA',SCO:'Szkocja',SEN:'Senegal',SUI:'Szwajcaria',
+  SWE:'Szwecja',TUN:'Tunezja',TUR:'Turcja',URU:'Urugwaj',USA:'USA',UZB:'Uzbekistan'
+};
+
+const KO_ROUNDS = [
+  ['round-of-32','1/16 finału'],['round-of-16','1/8 finału'],
+  ['quarterfinals','Ćwierćfinały'],['semifinals','Półfinały'],
+  ['3rd-place-match','O 3. miejsce'],['final','FINAŁ']
+];
+const KO_SLUGS = new Set(KO_ROUNDS.map(r=>r[0]));
+
+// Drużyna lub placeholder (np. "2. miejsce Gr. G", "Zw. 1/16 #3")
+function koPretty(co){
+  const ab = co.team && co.team.abbreviation;
+  const dn = (co.team && co.team.displayName) || '';
+  if(ab && ESPN_ABBR[ab]){ const pl=ESPN_ABBR[ab]; return {name:pl, flag:getFlag(pl,'1rem'), real:true}; }
+  const ph = t => ({name:t, flag:'<span style="font-size:0.95rem;opacity:0.45">❔</span>', real:false});
+  let m;
+  if(m=dn.match(/Group (\w+) Winner/i))        return ph(`1. Gr. ${m[1]}`);
+  if(m=dn.match(/Group (\w+) 2nd Place/i))      return ph(`2. Gr. ${m[1]}`);
+  if(m=dn.match(/Third Place Group ([A-Z\/]+)/i)) return ph(`3. miejsce (${m[1]})`);
+  if(m=dn.match(/Round of 32 (\d+) Winner/i))   return ph(`Zw. 1/16 #${m[1]}`);
+  if(m=dn.match(/Round of 16 (\d+) Winner/i))   return ph(`Zw. 1/8 #${m[1]}`);
+  if(m=dn.match(/Quarterfinal (\d+) Winner/i))  return ph(`Zw. ĆF ${m[1]}`);
+  if(m=dn.match(/Semifinal (\d+) Winner/i))     return ph(`Zw. PF ${m[1]}`);
+  if(m=dn.match(/Semifinal (\d+) Loser/i))      return ph(`Przeg. PF ${m[1]}`);
+  return ph(dn);
+}
+
+function koDate(iso){
+  try{ return new Date(iso).toLocaleString('pl-PL',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',timeZone:'Europe/Warsaw'}); }
+  catch(e){ return ''; }
+}
+
+async function fetchKnockout(){
+  try{
+    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/FIFA.WORLD/scoreboard?dates=20260628-20260720');
+    if(!r.ok) return null;
+    const d = await r.json();
+    return (d.events||[]).filter(e=>e.season && KO_SLUGS.has(e.season.slug));
+  }catch(e){ return null; }
+}
+
+function renderBracket(events){
+  const wrap = document.getElementById('bracket-scroll');
+  if(!wrap) return;
+  if(!events || !events.length){
+    wrap.innerHTML = '<div class="loading">Drabinka pojawi się po fazie grupowej…</div>';
+    return;
+  }
+  const byR = {};
+  events.forEach(e=>{ const s=e.season.slug; (byR[s]=byR[s]||[]).push(e); });
+  Object.values(byR).forEach(arr=>arr.sort((a,b)=>new Date(a.date)-new Date(b.date)));
+
+  wrap.innerHTML = KO_ROUNDS.filter(([sl])=>byR[sl]).map(([sl,label])=>{
+    const cards = byR[sl].map(e=>{
+      const c = e.competitions[0];
+      const st = c.status.type.state;
+      const cs = c.competitors.slice().sort((a,b)=>a.order-b.order);
+      const rowHtml = cs.map(co=>{
+        const t = koPretty(co);
+        const sc = st!=='pre' ? (typeof co.score==='object' ? (co.score&&co.score.displayValue) : co.score) : '';
+        const win = st==='post' && co.winner;
+        return `<div class="bm-row ${win?'win':''} ${t.real?'':'ph'}">
+          <span class="bm-flag">${t.flag}</span>
+          <span class="bm-name">${t.name}</span>
+          <span class="bm-score">${(sc!==''&&sc!=null)?sc:''}</span>
+        </div>`;
+      }).join('');
+      let meta = '', cls = '';
+      if(st==='in'){ meta = `● LIVE ${c.status.type.shortDetail||''}`; cls = 'live'; }
+      else if(st==='post'){ meta = 'Zakończony'; }
+      else { meta = koDate(e.date); }
+      return `<div class="bm-card ${cls}">${rowHtml}<div class="bm-meta">${meta}</div></div>`;
+    }).join('');
+    return `<div class="bracket-col"><div class="bracket-round-label">${label}</div><div class="bracket-col-inner">${cards}</div></div>`;
+  }).join('');
+}
+
+// Grupa, do której należą obie drużyny (faza grupowa)
+function groupOf(a,b){
+  for(const [g,teams] of Object.entries(GROUPS)){
+    if(teams.includes(a) && teams.includes(b)) return g;
+  }
+  return null;
+}
+
+// Zakończone mecze fazy grupowej z ESPN → format dla renderGroups
+async function fetchGroupResultsESPN(){
+  try{
+    const r = await fetch('https://site.api.espn.com/apis/site/v2/sports/soccer/FIFA.WORLD/scoreboard?dates=20260611-20260628');
+    if(!r.ok) return null;
+    const d = await r.json();
+    const out = [];
+    (d.events||[]).forEach(e=>{
+      if(!e.season || e.season.slug!=='group-stage') return;
+      const c = e.competitions[0];
+      if(!c || c.status.type.state!=='post') return;
+      const cs = c.competitors;
+      const h = cs.find(x=>x.homeAway==='home'), a = cs.find(x=>x.homeAway==='away');
+      if(!h||!a) return;
+      const hp = ESPN_ABBR[h.team&&h.team.abbreviation], ap = ESPN_ABBR[a.team&&a.team.abbreviation];
+      if(!hp||!ap) return;
+      const g = groupOf(hp,ap); if(!g) return;
+      out.push({ group:g, home:hp, away:ap, real:[parseInt(h.score), parseInt(a.score)] });
+    });
+    return out;
+  }catch(e){ return null; }
+}
+
+// Drabinka + oficjalne tabele grup (nie blokuje głównego renderu z arkusza)
+async function loadKnockoutAndTables(){
+  const [ko, gr] = await Promise.all([fetchKnockout(), fetchGroupResultsESPN()]);
+  renderBracket(ko);
+  if(gr && gr.length) renderGroups(gr); // oficjalne wyniki ESPN zastępują dane z arkusza w tabelach grup
 }
 
 function renderAll(matches){
@@ -1247,6 +1443,8 @@ async function init(){
     renderAll(matches);
     // Auto-discovery skrótów YouTube — jeśli znajdzie nowe, odśwież sekcję ostatniego meczu
     autoDiscoverHighlights().then(found=>{ if(found) renderLastMatch(matches); });
+    // Drabinka pucharowa + oficjalne tabele grup (live z ESPN)
+    loadKnockoutAndTables();
   }catch(e){
     console.error(e);
     document.getElementById('standings-container').innerHTML='<div class="loading">Błąd ładowania danych</div>';
