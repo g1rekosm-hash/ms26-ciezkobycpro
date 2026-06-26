@@ -232,13 +232,12 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 /* DRABINKA PUCHAROWA */
 .bracket-section{padding:16px 24px 24px;border-top:1px solid var(--border);background:var(--dark2);position:relative;z-index:1}
 .bracket-live-tag{font-family:'Oswald',sans-serif;font-size:0.58rem;letter-spacing:1px;background:linear-gradient(90deg,#cc0000,#ff2222);color:#fff;padding:2px 8px;border-radius:10px;box-shadow:0 0 10px #ff222244}
-.bracket-scroll{display:flex;gap:12px;overflow-x:auto;padding:4px 2px 12px}
-.bracket-scroll::-webkit-scrollbar{height:5px}
-.bracket-scroll::-webkit-scrollbar-track{background:var(--dark)}
-.bracket-scroll::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
-.bracket-col{min-width:190px;flex:1 0 190px;display:flex;flex-direction:column}
-.bracket-round-label{font-family:'Oswald',sans-serif;font-size:0.7rem;letter-spacing:2px;color:var(--gold);text-transform:uppercase;text-align:center;margin-bottom:10px}
-.bracket-col-inner{display:flex;flex-direction:column;justify-content:space-around;gap:8px;flex:1}
+.bracket-scroll{padding:2px 0}
+.bracket-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.bracket-tab{font-family:'Oswald',sans-serif;font-size:0.66rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:18px;padding:6px 13px;cursor:pointer;transition:all 0.15s;white-space:nowrap}
+.bracket-tab:hover{border-color:#ffffff22;color:var(--text)}
+.bracket-tab.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border-color:transparent;font-weight:600}
+.bracket-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
 .bm-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 2px 10px #00000022}
 .bm-card.live{border-color:#ff333366;box-shadow:0 0 18px #ff222222}
 .bm-row{display:flex;align-items:center;gap:7px;padding:6px 9px}
@@ -275,7 +274,7 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
   .next-flag,.live-flag{font-size:2rem!important}
   .logo-text{font-size:1rem}
   .groups-grid{grid-template-columns:repeat(2,1fr)}
-  .bracket-col{min-width:158px;flex-basis:158px}
+  .bracket-grid{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
@@ -1353,6 +1352,48 @@ async function fetchKnockout(){
   }catch(e){ return null; }
 }
 
+let KO_BY_ROUND = null;   // mecze pogrupowane wg rundy
+let koActiveRound = null; // wybrana zakładka rundy
+
+function bracketCardHtml(e){
+  const c = e.competitions[0];
+  const st = c.status.type.state;
+  const cs = c.competitors.slice().sort((a,b)=>a.order-b.order);
+  const rowHtml = cs.map(co=>{
+    const t = koPretty(co);
+    const sc = st!=='pre' ? (typeof co.score==='object' ? (co.score&&co.score.displayValue) : co.score) : '';
+    const win = st==='post' && co.winner;
+    return `<div class="bm-row ${win?'win':''} ${t.real?'':'ph'}">
+      <span class="bm-flag">${t.flag}</span>
+      <span class="bm-name">${t.name}</span>
+      <span class="bm-score">${(sc!==''&&sc!=null)?sc:''}</span>
+    </div>`;
+  }).join('');
+  let meta = '', cls = '';
+  if(st==='in'){ meta = `● LIVE ${c.status.type.shortDetail||''}`; cls = 'live'; }
+  else if(st==='post'){ meta = 'Zakończony'; }
+  else { meta = koDate(e.date); }
+  return `<div class="bm-card ${cls}">${rowHtml}<div class="bm-meta">${meta}</div></div>`;
+}
+
+function drawBracket(){
+  const wrap = document.getElementById('bracket-scroll');
+  if(!wrap || !KO_BY_ROUND) return;
+  const available = KO_ROUNDS.filter(([sl])=>KO_BY_ROUND[sl]);
+  if(!available.length){ wrap.innerHTML = '<div class="loading">Drabinka pojawi się po fazie grupowej…</div>'; return; }
+  // Domyślnie pokaż aktualną rundę (pierwszą z meczem jeszcze nierozegranym)
+  if(!koActiveRound || !KO_BY_ROUND[koActiveRound]){
+    const cur = available.find(([sl])=>KO_BY_ROUND[sl].some(e=>e.competitions[0].status.type.state!=='post'));
+    koActiveRound = (cur||available[0])[0];
+  }
+  const tabs = available.map(([sl,label])=>
+    `<button class="bracket-tab ${sl===koActiveRound?'active':''}" data-round="${sl}">${label}</button>`
+  ).join('');
+  const cards = (KO_BY_ROUND[koActiveRound]||[]).map(bracketCardHtml).join('');
+  wrap.innerHTML = `<div class="bracket-tabs">${tabs}</div><div class="bracket-grid">${cards}</div>`;
+  wrap.querySelectorAll('.bracket-tab').forEach(b=>b.addEventListener('click',()=>{ koActiveRound = b.dataset.round; drawBracket(); }));
+}
+
 function renderBracket(events){
   const wrap = document.getElementById('bracket-scroll');
   if(!wrap) return;
@@ -1363,30 +1404,8 @@ function renderBracket(events){
   const byR = {};
   events.forEach(e=>{ const s=e.season.slug; (byR[s]=byR[s]||[]).push(e); });
   Object.values(byR).forEach(arr=>arr.sort((a,b)=>new Date(a.date)-new Date(b.date)));
-
-  wrap.innerHTML = KO_ROUNDS.filter(([sl])=>byR[sl]).map(([sl,label])=>{
-    const cards = byR[sl].map(e=>{
-      const c = e.competitions[0];
-      const st = c.status.type.state;
-      const cs = c.competitors.slice().sort((a,b)=>a.order-b.order);
-      const rowHtml = cs.map(co=>{
-        const t = koPretty(co);
-        const sc = st!=='pre' ? (typeof co.score==='object' ? (co.score&&co.score.displayValue) : co.score) : '';
-        const win = st==='post' && co.winner;
-        return `<div class="bm-row ${win?'win':''} ${t.real?'':'ph'}">
-          <span class="bm-flag">${t.flag}</span>
-          <span class="bm-name">${t.name}</span>
-          <span class="bm-score">${(sc!==''&&sc!=null)?sc:''}</span>
-        </div>`;
-      }).join('');
-      let meta = '', cls = '';
-      if(st==='in'){ meta = `● LIVE ${c.status.type.shortDetail||''}`; cls = 'live'; }
-      else if(st==='post'){ meta = 'Zakończony'; }
-      else { meta = koDate(e.date); }
-      return `<div class="bm-card ${cls}">${rowHtml}<div class="bm-meta">${meta}</div></div>`;
-    }).join('');
-    return `<div class="bracket-col"><div class="bracket-round-label">${label}</div><div class="bracket-col-inner">${cards}</div></div>`;
-  }).join('');
+  KO_BY_ROUND = byR;
+  drawBracket();
 }
 
 // Grupa, do której należą obie drużyny (faza grupowa)
