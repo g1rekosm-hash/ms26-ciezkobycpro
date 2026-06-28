@@ -232,12 +232,20 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 /* DRABINKA PUCHAROWA */
 .bracket-section{padding:16px 24px 24px;border-top:1px solid var(--border);background:var(--dark2);position:relative;z-index:1}
 .bracket-live-tag{font-family:'Oswald',sans-serif;font-size:0.58rem;letter-spacing:1px;background:linear-gradient(90deg,#cc0000,#ff2222);color:#fff;padding:2px 8px;border-radius:10px;box-shadow:0 0 10px #ff222244}
-.bracket-scroll{padding:2px 0}
-.bracket-tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.bracket-tab{font-family:'Oswald',sans-serif;font-size:0.66rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);background:var(--card);border:1px solid var(--border);border-radius:18px;padding:6px 13px;cursor:pointer;transition:all 0.15s;white-space:nowrap}
-.bracket-tab:hover{border-color:#ffffff22;color:var(--text)}
-.bracket-tab.active{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#000;border-color:transparent;font-weight:600}
-.bracket-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:10px}
+.bracket-scroll{padding:2px 0;overflow-x:auto}
+.bracket-scroll::-webkit-scrollbar{height:6px}
+.bracket-scroll::-webkit-scrollbar-track{background:var(--dark)}
+.bracket-scroll::-webkit-scrollbar-thumb{background:var(--gold);border-radius:3px}
+.bk-wrap{position:relative;min-width:820px;padding:4px}
+.bk-lines{position:absolute;top:0;left:0;pointer-events:none;z-index:0}
+.bk-lines path{fill:none;stroke:#FFD70066;stroke-width:1.5}
+.bk-cols{display:flex;gap:34px;position:relative;z-index:1;align-items:stretch}
+.bk-col{flex:1 1 0;min-width:150px;display:flex;flex-direction:column}
+.bk-col-label{font-family:'Oswald',sans-serif;font-size:0.68rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);text-align:center;margin-bottom:12px}
+.bk-col-body{display:flex;flex-direction:column;justify-content:space-around;flex:1;gap:8px}
+.bk-cell{display:flex;align-items:center}
+.bk-cell .bm-card{width:100%}
+.bk-third{margin:16px auto 0;max-width:240px}
 .bm-card{background:var(--card);border:1px solid var(--border);border-radius:8px;overflow:hidden;box-shadow:0 2px 10px #00000022}
 .bm-card.live{border-color:#ff333366;box-shadow:0 0 18px #ff222222}
 .bm-row{display:flex;align-items:center;gap:7px;padding:6px 9px}
@@ -269,6 +277,8 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 .recap-name{font-family:'Oswald',sans-serif;font-size:0.95rem;color:var(--text);font-weight:700;margin-top:2px}
 .recap-val{font-size:0.62rem;color:var(--green);font-weight:600}
 .recap-quip{font-size:0.6rem;color:var(--muted);font-style:italic;margin-top:3px;line-height:1.3}
+.recap-note{font-size:0.64rem;color:var(--text);opacity:0.85;margin-top:12px;line-height:1.45;border-top:1px solid var(--border);padding-top:10px}
+.recap-note b{color:var(--gold)}
 
 /* KLASYFIKACJA GENERALNA (biała tabela) */
 .gen-table{background:#fff;border-radius:13px;padding:12px 12px 8px;box-shadow:0 6px 24px #00000050;border:1px solid #00000020}
@@ -382,16 +392,6 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
     🏆 Drabinka pucharowa <span class="bracket-live-tag">● ONLINE</span>
   </div>
   <div class="bracket-scroll" id="bracket-scroll"><div class="loading">Ładowanie drabinki…</div></div>
-</div>
-
-<!-- GRUPY — pełna szerokość -->
-<div class="groups-section">
-  <div class="section-label" style="margin-bottom:10px">Tabele grup — oficjalne wyniki (ESPN)</div>
-  <div class="groups-grid" id="groups-grid"><div class="loading">Ładowanie...</div></div>
-  <div class="groups-legend">
-    <span><span class="lg-dot" style="background:var(--green)"></span> awans (1–2 miejsce)</span>
-    <span><span class="lg-dot" style="background:var(--gold)"></span> 8 najlepszych z 3. miejsc</span>
-  </div>
 </div>
 
 <script>
@@ -1454,7 +1454,19 @@ async function fetchKnockout(){
 }
 
 let KO_BY_ROUND = null;   // mecze pogrupowane wg rundy
-let koActiveRound = null; // wybrana zakładka rundy
+// Stała struktura drabinki WC2026: kolejność meczów w drzewie (numeracja po dacie, 1-based).
+// Dzięki temu sąsiednie pary w kolumnie zasilają kolejną rundę → poprawne klamry.
+const KO_TREE_ORDER = {
+  'round-of-32':   [1,3,2,5,11,12,9,10,4,6,7,8,14,16,13,15],
+  'round-of-16':   [1,2,5,6,3,4,7,8],
+  'quarterfinals': [1,2,3,4],
+  'semifinals':    [1,2],
+  'final':         [1],
+};
+const KO_TREE_COLS = [
+  ['round-of-32','1/16'],['round-of-16','1/8'],['quarterfinals','Ćwierćfinały'],
+  ['semifinals','Półfinały'],['final','Finał']
+];
 
 function bracketCardHtml(e){
   const c = e.competitions[0];
@@ -1480,20 +1492,60 @@ function bracketCardHtml(e){
 function drawBracket(){
   const wrap = document.getElementById('bracket-scroll');
   if(!wrap || !KO_BY_ROUND) return;
-  const available = KO_ROUNDS.filter(([sl])=>KO_BY_ROUND[sl]);
-  if(!available.length){ wrap.innerHTML = '<div class="loading">Drabinka pojawi się po fazie grupowej…</div>'; return; }
-  // Domyślnie pokaż aktualną rundę (pierwszą z meczem jeszcze nierozegranym)
-  if(!koActiveRound || !KO_BY_ROUND[koActiveRound]){
-    const cur = available.find(([sl])=>KO_BY_ROUND[sl].some(e=>e.competitions[0].status.type.state!=='post'));
-    koActiveRound = (cur||available[0])[0];
-  }
-  const tabs = available.map(([sl,label])=>
-    `<button class="bracket-tab ${sl===koActiveRound?'active':''}" data-round="${sl}">${label}</button>`
-  ).join('');
-  const cards = (KO_BY_ROUND[koActiveRound]||[]).map(bracketCardHtml).join('');
-  wrap.innerHTML = `<div class="bracket-tabs">${tabs}</div><div class="bracket-grid">${cards}</div>`;
-  wrap.querySelectorAll('.bracket-tab').forEach(b=>b.addEventListener('click',()=>{ koActiveRound = b.dataset.round; drawBracket(); }));
+  const byR = KO_BY_ROUND;
+  if(!byR['final']){ wrap.innerHTML = '<div class="loading">Drabinka pojawi się po fazie grupowej…</div>'; return; }
+
+  // Buduj kolumny w kolejności drzewa (sąsiednie pary zasilają kolejną rundę)
+  const cols = KO_TREE_COLS.filter(([sl])=>byR[sl]).map(([sl,label])=>{
+    const arr = byR[sl];
+    const order = KO_TREE_ORDER[sl] || arr.map((_,i)=>i+1);
+    const matches = order.map(n=>arr[n-1]).filter(Boolean);
+    return { sl, label, matches: matches.length? matches : arr };
+  });
+
+  const colsHtml = cols.map(c=>`
+    <div class="bk-col">
+      <div class="bk-col-label">${c.label}</div>
+      <div class="bk-col-body">
+        ${c.matches.map(e=>`<div class="bk-cell">${bracketCardHtml(e)}</div>`).join('')}
+      </div>
+    </div>`).join('');
+
+  const third = byR['3rd-place-match'] && byR['3rd-place-match'][0];
+  const thirdHtml = third
+    ? `<div class="bk-third"><div class="bk-col-label">🥉 o 3. miejsce</div>${bracketCardHtml(third)}</div>`
+    : '';
+
+  wrap.innerHTML = `<div class="bk-wrap"><svg class="bk-lines" preserveAspectRatio="none"></svg><div class="bk-cols">${colsHtml}</div></div>${thirdHtml}`;
+  requestAnimationFrame(()=>requestAnimationFrame(drawConnectors));
+  setTimeout(drawConnectors, 400);   // ponowne rysowanie po dociągnięciu fontów/flag
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(drawConnectors);
 }
+
+// Rysuje klamry (SVG) między kolumnami na podstawie zmierzonych pozycji kart
+function drawConnectors(){
+  const wrap = document.querySelector('.bk-wrap'); if(!wrap) return;
+  const svg = wrap.querySelector('.bk-lines'); const colsEl = wrap.querySelector('.bk-cols');
+  const W = colsEl.scrollWidth, H = colsEl.offsetHeight;
+  svg.setAttribute('width',W); svg.setAttribute('height',H); svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  const base = colsEl.getBoundingClientRect();
+  const cols = [...colsEl.querySelectorAll('.bk-col')].map(col=>[...col.querySelectorAll('.bk-cell .bm-card')]);
+  const P = el=>{ const r=el.getBoundingClientRect(); return {l:r.left-base.left, r:r.right-base.left, mid:r.top-base.top+r.height/2}; };
+  let paths='';
+  for(let ci=1; ci<cols.length; ci++){
+    cols[ci].forEach((parent,pj)=>{
+      const pp = P(parent);
+      [cols[ci-1][2*pj], cols[ci-1][2*pj+1]].forEach(child=>{
+        if(!child) return;
+        const cp = P(child);
+        const xMid = (cp.r + pp.l)/2;
+        paths += `<path d="M ${cp.r.toFixed(1)} ${cp.mid.toFixed(1)} H ${xMid.toFixed(1)} V ${pp.mid.toFixed(1)} H ${pp.l.toFixed(1)}"/>`;
+      });
+    });
+  }
+  svg.innerHTML = paths;
+}
+window.addEventListener('resize', ()=>{ if(document.querySelector('.bk-wrap')) drawConnectors(); });
 
 function renderBracket(events){
   const wrap = document.getElementById('bracket-scroll');
@@ -1504,7 +1556,7 @@ function renderBracket(events){
   }
   const byR = {};
   events.forEach(e=>{ const s=e.season.slug; (byR[s]=byR[s]||[]).push(e); });
-  Object.values(byR).forEach(arr=>arr.sort((a,b)=>new Date(a.date)-new Date(b.date)));
+  Object.values(byR).forEach(arr=>arr.sort((a,b)=> (new Date(a.date)-new Date(b.date)) || (String(a.id)>String(b.id)?1:-1) ));
   KO_BY_ROUND = byR;
   drawBracket();
 }
@@ -1540,11 +1592,10 @@ async function fetchGroupResultsESPN(){
   }catch(e){ return null; }
 }
 
-// Drabinka + oficjalne tabele grup (nie blokuje głównego renderu z arkusza)
+// Drabinka pucharowa live z ESPN (nie blokuje głównego renderu z arkusza)
 async function loadKnockoutAndTables(){
-  const [ko, gr] = await Promise.all([fetchKnockout(), fetchGroupResultsESPN()]);
+  const ko = await fetchKnockout();
   renderBracket(ko);
-  if(gr && gr.length) renderGroups(gr); // oficjalne wyniki ESPN zastępują dane z arkusza w tabelach grup
 }
 
 // Podsumowanie fazy grupowej — humorystyczne statystyki z epitetami
@@ -1589,6 +1640,7 @@ function renderGroupSummary(matches){
           <div class="recap-quip">${quip}</div>
         </div>`).join('')}
     </div>
+    <div class="recap-note">💬 <b>Od redakcji:</b> CRACK też przespał ${B['CRACK']?B['CRACK'].missed:0} meczów — niefartownik z talentem, ale… ciężko być pro 😅. A PADAWER ma ${B['PADAWER']?B['PADAWER'].missed:0} pominięć przez mocny falstart na starcie turnieju.</div>
   </div>`;
 }
 
@@ -1625,7 +1677,6 @@ function renderAll(matches){
   renderNextMatch(matches);
   renderScroller(matches);
   renderTypy(matches);
-  renderGroups(matches);
   renderGroupSummary(matches);
   renderGeneralTable(matches);
 }
