@@ -259,6 +259,38 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 .groups-legend span{display:inline-flex;align-items:center;gap:5px}
 .lg-dot{width:9px;height:9px;border-radius:2px;display:inline-block}
 
+/* PODSUMOWANIE GRUPOWEJ (recap) */
+.recap-card{background:linear-gradient(145deg,#16142e,#100f26);border:1px solid #FFD70033;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 0 30px #FFD70010}
+.recap-title{font-family:'Oswald',sans-serif;font-size:1rem;letter-spacing:1px;color:var(--gold);text-align:center}
+.recap-sub{font-size:0.66rem;color:var(--muted);text-align:center;font-style:italic;margin-top:2px}
+.recap-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:13px}
+.recap-item{background:var(--dark);border:1px solid var(--border);border-radius:9px;padding:9px 10px}
+.recap-cat{font-size:0.6rem;letter-spacing:0.5px;text-transform:uppercase;color:var(--gold);font-weight:600}
+.recap-name{font-family:'Oswald',sans-serif;font-size:0.95rem;color:var(--text);font-weight:700;margin-top:2px}
+.recap-val{font-size:0.62rem;color:var(--green);font-weight:600}
+.recap-quip{font-size:0.6rem;color:var(--muted);font-style:italic;margin-top:3px;line-height:1.3}
+
+/* KLASYFIKACJA GENERALNA (biała tabela) */
+.gen-table{background:#fff;border-radius:13px;padding:12px 12px 8px;box-shadow:0 6px 24px #00000050;border:1px solid #00000020}
+.gen-title{font-family:'Oswald',sans-serif;font-size:0.95rem;letter-spacing:1px;color:#111;text-align:center;margin-bottom:10px;font-weight:700}
+.gen-row{display:flex;align-items:center;gap:9px;padding:7px 6px;border-bottom:1px solid #0000000f}
+.gen-row:last-of-type{border-bottom:none}
+.gen-row.leader{background:#fff7da;border-radius:8px}
+.gen-rank{font-family:'Oswald',sans-serif;font-size:1rem;color:#999;min-width:24px;text-align:center;font-weight:700}
+.gen-rank.r1{color:#d4a200}.gen-rank.r2{color:#9a9a9a}.gen-rank.r3{color:#c1772e}
+.gen-name{font-family:'Oswald',sans-serif;font-size:0.92rem;color:#111;font-weight:700;letter-spacing:0.3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gen-break{font-size:0.6rem;color:#666;white-space:nowrap}
+.gen-break b{color:#111}
+.gen-ko{color:#d10000;font-weight:700}
+.gen-total{font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:700;color:#000;min-width:32px;text-align:right}
+.gen-foot{font-size:0.58rem;color:#888;text-align:center;margin-top:8px;font-style:italic}
+
+/* TABELA GRUPOWA — kompakt */
+.standings-compact .standing-row{padding:6px 8px;margin-bottom:4px}
+.standings-compact .st-pts{font-size:1rem}
+.standings-compact .st-name{font-size:0.72rem}
+.standings-compact .st-rank{font-size:0.85rem}
+
 /* MOBILE */
 @media(max-width:900px){
   .layout{grid-template-columns:1fr;grid-template-rows:auto}
@@ -275,6 +307,7 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
   .logo-text{font-size:1rem}
   .groups-grid{grid-template-columns:repeat(2,1fr)}
   .bracket-grid{grid-template-columns:1fr 1fr}
+  .recap-grid{grid-template-columns:1fr}
 }
 </style>
 </head>
@@ -305,6 +338,9 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
   <!-- CENTER -->
   <div class="center">
 
+    <!-- PODSUMOWANIE FAZY GRUPOWEJ -->
+    <div id="recap-container"></div>
+
     <!-- OSTATNI MECZ -->
     <div class="last-match">
       <div class="section-label">Ostatni wynik</div>
@@ -328,11 +364,14 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 
   </div>
 
-  <!-- RIGHT: TABELA -->
+  <!-- RIGHT: TABELE -->
   <div class="right-panel">
-    <div class="standings-title">🏆 TABELA</div>
-    <div id="standings-container"><div class="loading">Ładowanie...</div></div>
-    <div class="pts-legend">🟡 +3 pkt dokładny wynik<br>🟢 +1 pkt trafiony typ</div>
+    <!-- Nowa: klasyfikacja generalna (grupowa + puchar) -->
+    <div id="general-container"><div class="loading">Ładowanie...</div></div>
+    <!-- Stara: faza grupowa (zmniejszona) -->
+    <div class="standings-title" style="font-size:0.82rem;margin-top:10px;opacity:0.8">Faza grupowa</div>
+    <div id="standings-container" class="standings-compact"><div class="loading">Ładowanie...</div></div>
+    <div class="pts-legend">🟡 +3 dokł. wynik · 🟢 +1 trafiony typ</div>
   </div>
 
 </div>
@@ -378,7 +417,7 @@ const FLAGS = {
   'Australia':'au','Turcja':'tr',
   'Niemcy':'de',
   'Curaçao':'cw','Curacao':'cw',
-  'Wybrzeże Kości Słoniowej':'ci',
+  'Wybrzeże Kości Słoniowej':'ci','WKS':'ci',
   'Ekwador':'ec',
   'Holandia':'nl','Japonia':'jp','Tunezja':'tn','Szwecja':'se',
   'Hiszpania':'es','Hipszania':'es',
@@ -388,7 +427,7 @@ const FLAGS = {
   'Francja':'fr','Senegal':'sn','Irak':'iq','Norwegia':'no',
   'Argentyna':'ar','Algieria':'dz','Algeria':'dz','Austria':'at','Jordania':'jo',
   'Portugalia':'pt',
-  'DR Konga':'cd','DR Kongo':'cd','Kongo DR':'cd','Demokratyczna Republika Konga':'cd',
+  'DR Konga':'cd','DR Kongo':'cd','Kongo DR':'cd','Demokratyczna Republika Konga':'cd','DRK':'cd',
   'Uzbekistan':'uz','Kolumbia':'co',
   'Anglia':'gb-eng','Chorwacja':'hr','Ghana':'gh','Panama':'pa'
 };
@@ -441,6 +480,9 @@ const TEAM_ALIASES = {
   // Literówki z arkusza
   'hipszania':'Hiszpania',
   'szwajrcaria':'Szwajcaria',
+  // Skróty z fazy pucharowej
+  'wks':'Wybrzeże Kości Słoniowej',
+  'drk':'DR Konga',
 };
 
 // Szczegóły meczów: stadion, trenerzy, prawdopodobne składy (aktualizuj ręcznie)
@@ -687,6 +729,65 @@ function predClass(pred,rh,ra){
   return p===3?'exact':p===1?'correct':'wrong';
 }
 
+// ===== FAZA PUCHAROWA — punktacja =====
+// Parsuje komórkę "a:b" z opcjonalną gwiazdką przy drużynie awansującej.
+// Zwraca {h,a,adv} gdzie adv:'H'|'A'|null (kto awansuje wg tego typu/wyniku).
+function parseKO(s){
+  if(s==null) return null;
+  s = String(s).trim();
+  if(!s || s==='-') return null;
+  const hasStar = s.indexOf('*')>=0;
+  const leftStar = /^\s*\d+\s*\*/.test(s);      // gwiazdka przy lewej (gospodarz)
+  const p = s.replace(/\*/g,'').split(':');
+  if(p.length!==2) return null;
+  const h = parseInt(p[0],10), a = parseInt(p[1],10);
+  if(isNaN(h)||isNaN(a)) return null;
+  let adv = h>a ? 'H' : a>h ? 'A' : (hasStar ? (leftStar?'H':'A') : null);
+  return {h,a,adv};
+}
+
+// Punkty gracza za jeden mecz pucharowy: dokładny 90'=3, trafiony rezultat=1, +1 za awans.
+function koMatchPoints(predRaw, res){
+  const pred = parseKO(predRaw);
+  if(!pred) return 0;
+  let pts = 0;
+  if(pred.h===res.h && pred.a===res.a) pts += 3;
+  else if(getOutcome(pred.h,pred.a)===getOutcome(res.h,res.a)) pts += 1;
+  if(pred.adv && res.adv && pred.adv===res.adv) pts += 1;
+  return pts;
+}
+
+// Suma punktów pucharowych per gracz (liczone tylko mecze z wpisanym wynikiem).
+function koPointsByPlayer(matches){
+  const ko = matches.filter(m=>m.isKO && parseKO(m.rawReal));
+  const byPlayer = {};
+  ACTIVE_PLAYERS.forEach(p=>{
+    let pts=0;
+    ko.forEach(m=>{ pts += koMatchPoints(m.rawPreds[p], parseKO(m.rawReal)); });
+    byPlayer[p] = pts;
+  });
+  return { byPlayer, count: ko.length };
+}
+
+// Statystyki fazy grupowej per gracz (wspólne dla tabeli, podsumowania i klasyfikacji).
+function groupStats(matches){
+  const gs = matches.filter(m=>m.real && !m.isKO);
+  const total = gs.length;
+  const byPlayer = {};
+  ACTIVE_PLAYERS.forEach(p=>{
+    let pts=0,exact=0,correct=0,predicted=0,sumGoals=0;
+    gs.forEach(m=>{
+      const pred=m.preds[p];
+      if(pred){ predicted++; sumGoals += pred[0]+pred[1]; }
+      const pp=calcPts(pred,m.real[0],m.real[1]);
+      pts+=pp; if(pp===3)exact++; if(pp>=1)correct++;
+    });
+    byPlayer[p]={pts,exact,correct,predicted,missed:total-predicted,
+      acc: predicted? correct/predicted : 0, avg: predicted? sumGoals/predicted : 0};
+  });
+  return {byPlayer,total};
+}
+
 function getMatchDateTime(dateStr, timeStr){
   const months={'stycznia':0,'lutego':1,'marca':2,'kwietnia':3,'maja':4,'czerwca':5,'lipca':6,'sierpnia':7,'września':8,'października':9,'listopada':10,'grudnia':11};
   const parts = dateStr.trim().split(' ');
@@ -729,7 +830,7 @@ function parseCSV(text){
 function processData(rows){
   const matches = [];
   let currentDate = '';
-  let dateMatchIdx = {};
+  let inKO = false; // czy jesteśmy już w fazie pucharowej (po znaczniku FAZA PLAYOFF)
 
   for(let i=1;i<rows.length;i++){
     const r = rows[i];
@@ -737,35 +838,43 @@ function processData(rows){
     const col0 = r[0]?r[0].replace(/"/g,'').trim():'';
     const col1 = r[1]?r[1].replace(/"/g,'').trim():'';
 
-    if(!col0&&col1&&col1.includes('czerwca')){
-      currentDate = col1;
-      dateMatchIdx[currentDate] = 0;
-      continue;
+    // Znacznik początku fazy pucharowej
+    if(/playoff|puchar/i.test(col0)){ inKO = true; currentDate = ''; continue; }
+    // Nagłówek daty (czerwiec / lipiec)
+    if(!col0 && col1 && (col1.includes('czerwca')||col1.includes('lipca'))){
+      currentDate = col1; continue;
     }
-    if(!col0||!col1) continue;
-    if(col1==='SUMA'||col1==='MECZ') continue;
+    if(!col1) continue;
+    if(col1==='SUMA'||col1==='MECZ'||col1.includes('czerwca')||col1.includes('lipca')) continue;
 
     const parts = col1.split(/\s*-\s*/);
     if(parts.length<2) continue;
 
-    const sheetScore = parseScore(r[14]?r[14].replace(/"/g,''):'');
+    const rawReal = r[14]?r[14].replace(/"/g,'').trim():'';
+    const sheetScore = parseScore(rawReal);
     const preds = {};
+    const rawPreds = {};
     PLAYERS.forEach((p,idx)=>{
       const raw = r[idx+2]?r[idx+2].replace(/"/g,'').trim():'';
+      rawPreds[p] = raw;
       preds[p] = parseScore(raw);
     });
 
     const home = parts[0].trim();
     const away = parts.slice(1).join(' - ').trim();
-    const dt = getScheduledDt(home, away);
+    let dt = getScheduledDt(home, away);
+    // Mecze pucharowe nie są w MATCH_SCHEDULE — datę bierzemy z nagłówka (domyślnie 21:00)
+    if(inKO && dt.getFullYear()>2050 && currentDate){
+      const d = getMatchDateTime(currentDate,'21:00');
+      if(d && !isNaN(d.getTime())) dt = d;
+    }
     const time = formatDt(dt);
-    // Wynik z Google Sheets ma priorytet; jeśli brak, użyj ESPN cache (dla zakończonych meczów)
+    // Wynik z arkusza ma priorytet; dla grupowej brak → ESPN cache (zakończone mecze)
     const finished = dt < new Date(Date.now() - LIVE_DURATION_MS);
     let real = sheetScore;
-    if(!real && finished){
+    if(!real && !inKO && finished){
       const espn = ESPN_SCORES[mkey(home,away)];
       if(espn){
-        // Sprawdź czy kolejność home/away zgadza się z ESPN; jeśli nie — zamień
         const sameOrder = normT(home) === normT(espn.h);
         real = sameOrder ? espn.s : [espn.s[1], espn.s[0]];
       }
@@ -774,28 +883,20 @@ function processData(rows){
     matches.push({
       date:currentDate, group:col0,
       home, away,
-      real, preds, time, dt
+      real, preds, rawPreds, rawReal, time, dt, isKO:inKO
     });
   }
   return matches;
 }
 
 function renderStandings(matches){
-  const played = matches.filter(m=>m.real);
-  const data = ACTIVE_PLAYERS.map(p=>{
-    let pts=0,exact=0,correct=0;
-    played.forEach(m=>{
-      const pp = calcPts(m.preds[p],m.real[0],m.real[1]);
-      pts+=pp;
-      if(pp===3) exact++;
-      if(pp>=1) correct++;
-    });
-    return{name:p,pts,exact,correct};
-  }).sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
+  const gstat = groupStats(matches);
+  const totalPlayed = gstat.total;
+  const data = ACTIVE_PLAYERS.map(p=>({name:p, ...gstat.byPlayer[p]}))
+    .sort((a,b)=>b.pts-a.pts||b.exact-a.exact);
 
-  document.getElementById('played-count').textContent = played.length;
+  document.getElementById('played-count').textContent = totalPlayed;
   const maxPts = data[0]?.pts || 1;
-  const totalPlayed = played.length;
 
   const cont = document.getElementById('standings-container');
   cont.innerHTML = '';
@@ -1446,6 +1547,78 @@ async function loadKnockoutAndTables(){
   if(gr && gr.length) renderGroups(gr); // oficjalne wyniki ESPN zastępują dane z arkusza w tabelach grup
 }
 
+// Podsumowanie fazy grupowej — humorystyczne statystyki z epitetami
+function renderGroupSummary(matches){
+  const cont = document.getElementById('recap-container');
+  if(!cont) return;
+  const {byPlayer,total} = groupStats(matches);
+  if(!total){ cont.innerHTML=''; return; }
+  const P = ACTIVE_PLAYERS;
+  const pick = (f,dir='max',pool=P)=> pool.slice().sort((a,b)=> dir==='max'? f(byPlayer[b])-f(byPlayer[a]) : f(byPlayer[a])-f(byPlayer[b]))[0];
+  const elig = P.filter(p=>byPlayer[p].predicted>=5); const accPool = elig.length?elig:P;
+  const betPool = P.filter(p=>byPlayer[p].predicted>0);
+
+  const wodz=pick(s=>s.pts), latarnia=pick(s=>s.pts,'min'), snajper=pick(s=>s.exact),
+        spioch=pick(s=>s.missed), pracus=pick(s=>s.missed,'min'),
+        egzekutor=pick(s=>s.acc,'max',accPool), pechowiec=pick(s=>s.acc,'min',accPool),
+        spryciarz=pick(s=>s.correct-s.exact), optymista=pick(s=>s.avg,'max',betPool), beton=pick(s=>s.avg,'min',betPool);
+  const pct=x=>Math.round(x*100), f1=x=>x.toFixed(1), B=byPlayer;
+
+  const items=[
+    ['👑','Wódz', wodz, `${B[wodz].pts} pkt`, 'Rządzi tabelą. Na razie udaje się być pro.'],
+    ['💩','Czerwona latarnia', latarnia, `${B[latarnia].pts} pkt`, 'Oświetla tabelę od spodu. No cóż — ciężko być pro.'],
+    ['🎯','Snajper', snajper, `${B[snajper].exact}× PRO`, 'Dokładne wyniki jak z nut. Zimna krew.'],
+    ['😴','Śpioch', spioch, `${B[spioch].missed} pominięć`, 'Budzik to też sprzęt sportowy.'],
+    ['🤓','Sumienny Pracuś', pracus, `${B[pracus].missed} pominięć`, 'Obstawia wszystko jak należy. Zawodowiec.'],
+    ['🔥','Egzekutor', egzekutor, `${pct(B[egzekutor].acc)}% trafień`, 'Mało gada, dużo trafia.'],
+    ['🍌','Pechowiec', pechowiec, `${pct(B[pechowiec].acc)}% trafień`, 'Forma to rzecz nabyta. Oby.'],
+    ['🦊','Spryciarz', spryciarz, `${B[spryciarz].correct-B[spryciarz].exact}× sam zwycięzca`, 'Wynik? Detal. Liczy się zwycięzca.'],
+    ['⚽','Optymista', optymista, `śr. ${f1(B[optymista].avg)} gola/mecz`, 'U niego każdy mecz to festiwal goli.'],
+    ['🧱','Pan Beton', beton, `śr. ${f1(B[beton].avg)} gola/mecz`, 'Stawia na 0:0 do oporu. Defensywa to podstawa.'],
+  ];
+  cont.innerHTML = `
+  <div class="recap-card">
+    <div class="recap-title">🏁 Bilans fazy grupowej</div>
+    <div class="recap-sub">„Ciężko być pro" — kto się zbliżył, a kto poległ</div>
+    <div class="recap-grid">
+      ${items.map(([e,cat,name,val,quip])=>`
+        <div class="recap-item">
+          <div class="recap-cat">${e} ${cat}</div>
+          <div class="recap-name">${name}</div>
+          <div class="recap-val">${val}</div>
+          <div class="recap-quip">${quip}</div>
+        </div>`).join('')}
+    </div>
+  </div>`;
+}
+
+// Klasyfikacja generalna = punkty grupowe + pucharowe
+function renderGeneralTable(matches){
+  const cont = document.getElementById('general-container');
+  if(!cont) return;
+  const g = groupStats(matches).byPlayer;
+  const ko = koPointsByPlayer(matches);
+  const data = ACTIVE_PLAYERS.map(p=>({name:p, gr:g[p].pts, ko:ko.byPlayer[p], total:g[p].pts+ko.byPlayer[p]}))
+    .sort((a,b)=>b.total-a.total||b.gr-a.gr||a.name.localeCompare(b.name));
+  const rows = data.map((d,i)=>{
+    const rc=i===0?'r1':i===1?'r2':i===2?'r3':'';
+    const medal=i===0?'🥇':i===1?'🥈':i===2?'🥉':(i+1);
+    return `<div class="gen-row ${i===0?'leader':''}">
+      <div class="gen-rank ${rc}">${medal}</div>
+      <div style="flex:1;min-width:0">
+        <div class="gen-name">${d.name}</div>
+        <div class="gen-break">grupowa <b>${d.gr}</b> · puchar <span class="gen-ko">+${d.ko}</span></div>
+      </div>
+      <div class="gen-total">${d.total}</div>
+    </div>`;
+  }).join('');
+  cont.innerHTML = `<div class="gen-table">
+    <div class="gen-title">🏆 KLASYFIKACJA GENERALNA</div>
+    ${rows}
+    <div class="gen-foot">${ko.count>0?`puchar: ${ko.count} meczów rozegranych`:'puchar startuje — punkty doliczą się po pierwszych meczach'}</div>
+  </div>`;
+}
+
 function renderAll(matches){
   renderStandings(matches);
   renderLastMatch(matches);
@@ -1453,6 +1626,8 @@ function renderAll(matches){
   renderScroller(matches);
   renderTypy(matches);
   renderGroups(matches);
+  renderGroupSummary(matches);
+  renderGeneralTable(matches);
 }
 
 async function init(){
