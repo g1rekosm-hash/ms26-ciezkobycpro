@@ -294,6 +294,8 @@ header::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;ba
 .gen-ko{color:#d10000;font-weight:700}
 .gen-total{font-family:'Oswald',sans-serif;font-size:1.3rem;font-weight:700;color:#000;min-width:32px;text-align:right}
 .gen-foot{font-size:0.58rem;color:#888;text-align:center;margin-top:8px;font-style:italic}
+.ko-pro{display:inline-flex;align-items:center;gap:3px;color:#c1271f;font-family:'Oswald',sans-serif;font-weight:700;font-size:0.74rem;letter-spacing:2px;text-transform:uppercase;padding:2px 7px;border:2px solid #c1271f;border-radius:4px;outline:1.5px solid #c1271f;outline-offset:1.5px;background:#c1271f0d;transform:rotate(-7deg);line-height:1;text-shadow:0 0 1px #c1271f55}
+.ko-pro .kp-x{font-size:0.66rem;letter-spacing:0.5px;font-weight:700}
 
 /* TABELA GRUPOWA — kompakt */
 .standings-compact .standing-row{padding:6px 8px;margin-bottom:4px}
@@ -690,6 +692,17 @@ const MATCH_SCHEDULE = {
   [mkey('DR Konga','Uzbekistan')]:                  D(6,28, 1,30),
 };
 
+// Godziny meczów pucharowych — nie ma ich w MATCH_SCHEDULE, datę bierzemy z nagłówka,
+// a godzinę stąd. Brak wpisu = domyślnie 21:00. Czas polski (CEST). 3:00 = nad ranem tej daty.
+const KO_TIMES = {
+  [mkey('Brazylia','Japonia')]:  '19:00',
+  [mkey('Niemcy','Paragwaj')]:   '22:30',
+  [mkey('Holandia','Maroko')]:   '03:00',
+  [mkey('WKS','Norwegia')]:      '19:00',
+  [mkey('Francja','Szwecja')]:   '23:00',
+  [mkey('Meksyk','Ekwador')]:    '03:00',
+};
+
 function getScheduledDt(home, away){
   return MATCH_SCHEDULE[mkey(home,away)] || new Date(2099,0,1);
 }
@@ -761,12 +774,18 @@ function koMatchPoints(predRaw, res){
 function koPointsByPlayer(matches){
   const ko = matches.filter(m=>m.isKO && parseKO(m.rawReal));
   const byPlayer = {};
+  const exactByPlayer = {};
   ACTIVE_PLAYERS.forEach(p=>{
-    let pts=0;
-    ko.forEach(m=>{ pts += koMatchPoints(m.rawPreds[p], parseKO(m.rawReal)); });
-    byPlayer[p] = pts;
+    let pts=0, exact=0;
+    ko.forEach(m=>{
+      const res = parseKO(m.rawReal);
+      const pred = parseKO(m.rawPreds[p]);
+      pts += koMatchPoints(m.rawPreds[p], res);
+      if(pred && pred.h===res.h && pred.a===res.a) exact++;
+    });
+    byPlayer[p] = pts; exactByPlayer[p] = exact;
   });
-  return { byPlayer, count: ko.length };
+  return { byPlayer, exactByPlayer, count: ko.length };
 }
 
 // Statystyki fazy grupowej per gracz (wspólne dla tabeli, podsumowania i klasyfikacji).
@@ -863,9 +882,9 @@ function processData(rows){
     const home = parts[0].trim();
     const away = parts.slice(1).join(' - ').trim();
     let dt = getScheduledDt(home, away);
-    // Mecze pucharowe nie są w MATCH_SCHEDULE — datę bierzemy z nagłówka (domyślnie 21:00)
+    // Mecze pucharowe nie są w MATCH_SCHEDULE — datę bierzemy z nagłówka, godzinę z KO_TIMES (domyślnie 21:00)
     if(inKO && dt.getFullYear()>2050 && currentDate){
-      const d = getMatchDateTime(currentDate,'21:00');
+      const d = getMatchDateTime(currentDate, KO_TIMES[mkey(home,away)] || '21:00');
       if(d && !isNaN(d.getTime())) dt = d;
     }
     const time = formatDt(dt);
@@ -1650,7 +1669,7 @@ function renderGeneralTable(matches){
   if(!cont) return;
   const g = groupStats(matches).byPlayer;
   const ko = koPointsByPlayer(matches);
-  const data = ACTIVE_PLAYERS.map(p=>({name:p, gr:g[p].pts, ko:ko.byPlayer[p], total:g[p].pts+ko.byPlayer[p]}))
+  const data = ACTIVE_PLAYERS.map(p=>({name:p, gr:g[p].pts, ko:ko.byPlayer[p], koExact:ko.exactByPlayer[p], total:g[p].pts+ko.byPlayer[p]}))
     .sort((a,b)=>b.total-a.total||b.gr-a.gr||a.name.localeCompare(b.name));
   const rows = data.map((d,i)=>{
     const rc=i===0?'r1':i===1?'r2':i===2?'r3':'';
@@ -1658,7 +1677,10 @@ function renderGeneralTable(matches){
     return `<div class="gen-row ${i===0?'leader':''}">
       <div class="gen-rank ${rc}">${medal}</div>
       <div style="flex:1;min-width:0">
-        <div class="gen-name">${d.name}</div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="gen-name" style="overflow:visible">${d.name}</span>
+          ${d.koExact>0?`<span class="ko-pro" title="Dokładne wyniki w pucharze">PRO<span class="kp-x">×${d.koExact}</span></span>`:''}
+        </div>
         <div class="gen-break">grupowa <b>${d.gr}</b> · puchar <span class="gen-ko">+${d.ko}</span></div>
       </div>
       <div class="gen-total">${d.total}</div>
